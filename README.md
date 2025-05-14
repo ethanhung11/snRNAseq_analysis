@@ -12,12 +12,16 @@ Replicating analysis by [So et al. 2025](https://elifesciences.org/articles/9798
 ### Step 2. CellBender (Python [CellBender, PyTables])
 * Used to clean technical artifacts from sequencing data.
 * This can take a while, so run it on an HPC if necessary. Add [Cellbender](https://cellbender.readthedocs.io/en/latest/installation/index.html), and following this [tutorial](https://cellbender.readthedocs.io/en/latest/tutorial/index.html).
-```cellbender remove-background --input ./data/GSM7747185_Chow-eWAT --output cleaned_output.h5```
-* There's an issue document on the [README of the GitHub page](https://github.com/broadinstitute/CellBender), regarding checkpoint/saving issues on v0.3.1. This is echoed [here](https://github.com/broadinstitute/CellBender/issues/386), and the suggested solution was to pull from this (recent commit)[https://github.com/lukabor/CellBender/commit/4334e8966217c3591bf7c545f31ab979cdc6590d]:
-```pip install --no-cache-dir -U git+https://github.com/broadinstitute/CellBender.git@4334e8966217c3591bf7c545f31ab979cdc6590d```
+```
+cellbender remove-background --input ./data/GSM7747185_Chow-eWAT --output cleaned_output.h5
+```
+* There's an issue document on the [README of the GitHub page](https://github.com/broadinstitute/CellBender), regarding checkpoint/saving issues on v0.3.1. This is echoed [here](https://github.com/broadinstitute/CellBender/issues/386), and the suggested solution was to pull from this [recent commit](https://github.com/lukabor/CellBender/commit/4334e8966217c3591bf7c545f31ab979cdc6590d):
+```
+pip install --no-cache-dir -U git+https://github.com/broadinstitute/CellBender.git@4334e8966217c3591bf7c545f31ab979cdc6590d
+```
 (Hopefully, this is resolved in v0.3.2.)
 
-* To complete analysis using Seurat in R (see [the tutorial](https://cellbender.readthedocs.io/en/latest/tutorial/index.html#open-in-seurat)) you must also run this command, which requires (PyTables)[https://www.pytables.org/usersguide/installation.html]:
+* To complete analysis using Seurat in R (see [the tutorial](https://cellbender.readthedocs.io/en/latest/tutorial/index.html#open-in-seurat)) you must also run this command, which requires [PyTables](https://www.pytables.org/usersguide/installation.html):
 ```
 ptrepack --complevel 5 data/CellBender/cleaned_output_filtered.h5:/matrix data/CellBender/cleaned_output_filtered_seurat.h5:/matrix
 ```
