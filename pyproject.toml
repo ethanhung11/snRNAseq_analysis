@@ -7,9 +7,10 @@ authors = [
 ]
 dependencies = [
     "cellbender>=0.3.0",
+    "tables>=3.10.1",
 ]
 readme = "README.md"
-requires-python = ">= 3.8"
+requires-python = ">= 3.10"
 
 [build-system]
 requires = ["hatchling"]
