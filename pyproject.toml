@@ -1,0 +1,26 @@
+[project]
+name = "snrnaseq-analysis"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "ehung", email = "ethanhung11@gmail.com" }
+]
+dependencies = [
+    "cellbender>=0.3.0",
+]
+readme = "README.md"
+requires-python = ">= 3.8"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = []
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/snrnaseq_analysis"]
