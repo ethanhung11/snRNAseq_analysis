@@ -41,7 +41,7 @@ bleach==6.2.0
     # via nbconvert
 blosc2==3.3.3
     # via tables
-cellbender==0.3.0
+cellbender @ git+https://github.com/broadinstitute/CellBender.git@4334e8966217c3591bf7c545f31ab979cdc6590d
     # via snrnaseq-analysis
 certifi==2025.4.26
     # via httpcore
@@ -197,7 +197,10 @@ loompy==3.0.8
     # via cellbender
 lxml==5.4.0
     # via jupyter-contrib-nbextensions
+    # via lxml-html-clean
     # via nbconvert
+lxml-html-clean==0.4.2
+    # via cellbender
 markupsafe==3.0.2
     # via jinja2
     # via nbconvert
@@ -357,7 +360,7 @@ rfc3339-validator==0.1.4
 rfc3986-validator==0.1.1
     # via jsonschema
     # via jupyter-events
-rpds-py==0.24.0
+rpds-py==0.25.0
     # via jsonschema
     # via referencing
 scipy==1.15.3
@@ -367,7 +370,7 @@ scipy==1.15.3
 send2trash==1.8.3
     # via jupyter-server
     # via notebook
-setuptools==80.4.0
+setuptools==80.7.1
     # via jupyter-contrib-core
     # via jupyterlab
     # via loompy

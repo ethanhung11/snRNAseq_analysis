@@ -6,8 +6,8 @@ authors = [
     { name = "ehung", email = "ethanhung11@gmail.com" }
 ]
 dependencies = [
-    "cellbender>=0.3.0",
     "tables>=3.10.1",
+    "cellbender @ git+https://github.com/broadinstitute/CellBender.git@4334e8966217c3591bf7c545f31ab979cdc6590d",
 ]
 readme = "README.md"
 requires-python = ">= 3.10"
