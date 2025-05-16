@@ -51,17 +51,17 @@ Replicating analysis by [So et al. 2025](https://elifesciences.org/articles/9798
             ```
     * [PyTables](https://www.pytables.org/usersguide/installation.html)
 * R Dependencies:
-    * can be found in the Rmd file too
-    BioConductor:
-    * Seurat
-    * patchwork
-    * hdf5r
-    General:
-    * remote
-    * here
-    * dplyr
-    Remote:
-    * DoubletFinder (use `install_github('chris-mcginnis-ucsf/DoubletFinder', force = TRUE)`)
+can be found in the Rmd file too
+    * BioConductor:
+        * Seurat
+        * patchwork
+        * hdf5r
+    * General:
+        * remote
+        * here
+        * dplyr
+    * Remote:
+        * DoubletFinder (use `install_github('chris-mcginnis-ucsf/DoubletFinder', force = TRUE)`)
 
 ### Step 2. CellBender (Python [CellBender, PyTables])
 * Used to clean technical artifacts from sequencing data. This can take a while, so run it on an HPC/server as necessary.
