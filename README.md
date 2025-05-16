@@ -39,15 +39,16 @@ Replicating analysis by [So et al. 2025](https://elifesciences.org/articles/9798
 * Download .tsv & .mtx data. This is a CellRanger output, as described [here](https://kb.10xgenomics.com/hc/en-us/articles/115000794686-How-is-the-MEX-format-used-for-the-gene-barcode-matrices).
 * Unzip data as necessary using `gzip -d [filename].[ext].gz`. Rename the corresponding files to `barcodes.tsv`, `genes.tsv`, and `matrix.mtx`, and save to a desired directory (using the repo structure above, I used `./data/CellRanger/[filename]/`). 
 * Python Dependencies:
-    * [Cellbender](https://cellbender.readthedocs.io/en/latest/installation/index.html); should follow this [tutorial](https://cellbender.readthedocs.io/en/latest/tutorial/index.html) for more details. There was an cache issue with pytorch, a discussion to which can be found [here](https://github.com/broadinstitute/CellBender/issues/386). The suggested solution was to pull from this recent commit: [`4334e8966217c3591bf7c545f31ab979cdc6590d`](https://github.com/lukabor/CellBender/commit/4334e8966217c3591bf7c545f31ab979cdc6590d):
-    For rye:
-        ```
-        rye add cellbender --git=https://github.com/broadinstitute/CellBender.git@4334e8966217c3591bf7c545f31ab979cdc6590d
-        ```
-    or normal pip installation:
-        ```
-        pip install --no-cache-dir -U git+https://github.com/broadinstitute/CellBender.git@4334e8966217c3591bf7c545f31ab979cdc6590d
-        ```
+    * [Cellbender](https://cellbender.readthedocs.io/en/latest/installation/index.html); should follow this [tutorial](https://cellbender.readthedocs.io/en/latest/tutorial/index.html) for more details.
+        * There's an issue document on the [README of the GitHub page](https://github.com/broadinstitute/CellBender), regarding checkpoint/saving issues on v0.3.1. A discussion on this can be found [here](https://github.com/broadinstitute/CellBender/issues/386). The suggested solution was to pull from this recent commit: [`4334e8966217c3591bf7c545f31ab979cdc6590d`](https://github.com/lukabor/CellBender/commit/4334e8966217c3591bf7c545f31ab979cdc6590d):
+        For rye:
+            ```
+            rye add cellbender --git=https://github.com/broadinstitute/CellBender.git@4334e8966217c3591bf7c545f31ab979cdc6590d
+            ```
+        or normal pip installation:
+            ```
+            pip install --no-cache-dir -U git+https://github.com/broadinstitute/CellBender.git@4334e8966217c3591bf7c545f31ab979cdc6590d
+            ```
     * [PyTables](https://www.pytables.org/usersguide/installation.html)
 * R Dependencies:
     * can be found in the Rmd file too
@@ -63,10 +64,9 @@ Replicating analysis by [So et al. 2025](https://elifesciences.org/articles/9798
     * DoubletFinder (use `install_github('chris-mcginnis-ucsf/DoubletFinder', force = TRUE)`)
 
 ### Step 2. CellBender (Python [CellBender, PyTables])
-* Used to clean technical artifacts from sequencing data.
-* This can take a while, so run it on an HPC if necessary.
-* There's an issue document on the [README of the GitHub page](https://github.com/broadinstitute/CellBender), regarding checkpoint/saving issues on v0.3.1.
-* To complete analysis using Seurat in R (see [the tutorial](https://cellbender.readthedocs.io/en/latest/tutorial/index.html#open-in-seurat)) you must also run this `ptrepack`, which requires PyTables:
+* Used to clean technical artifacts from sequencing data. This can take a while, so run it on an HPC/server as necessary.
+* See `cellbending.sh` for proper usage. Besides input/output, the other settings are just to conserve computing resources as Presidio doesn't have a scheduler.
+* To complete analysis using Seurat in R (see [the tutorial](https://cellbender.readthedocs.io/en/latest/tutorial/index.html#open-in-seurat)) you must also use the command `ptrepack` for compatabilitiy, which requires PyTables:
 ```
 ptrepack --complevel 5 data/CellBender/[filename].h5:/matrix data/CellRanger/[filename]_seurat.h5:/matrix
 ```
