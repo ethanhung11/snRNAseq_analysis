@@ -3,7 +3,7 @@
 Replicating analysis by [So et al. 2025](https://elifesciences.org/articles/97981#s4-9-1)
 * snRNAseq data was made available here: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE241987
 * note, I use [Rye](https://rye.astral.sh/) for package management.
-* [Click me to see how what step I'm working on now.](#anchor)
+* [**Click me to see how what step I'm working on now.**](#anchor)
 
 ### Repo Structure
 ```python
@@ -41,18 +41,18 @@ Replicating analysis by [So et al. 2025](https://elifesciences.org/articles/9798
 * Unzip data as necessary using `gzip -d [filename].[ext].gz`. Rename the corresponding files to `barcodes.tsv`, `genes.tsv`, and `matrix.mtx`, and save to a desired directory (using the repo structure above, I used `./data/CellRanger/[filename]/`). 
 * Python Dependencies:
     * [Cellbender](https://cellbender.readthedocs.io/en/latest/installation/index.html); should follow this [tutorial](https://cellbender.readthedocs.io/en/latest/tutorial/index.html) for more details.
-        * There's an issue document on the [README of the GitHub page](https://github.com/broadinstitute/CellBender), regarding checkpoint/saving issues on v0.3.1. A discussion on this can be found [here](https://github.com/broadinstitute/CellBender/issues/386). The suggested solution was to pull from this recent commit: [`4334e8966217c3591bf7c545f31ab979cdc6590d`](https://github.com/lukabor/CellBender/commit/4334e8966217c3591bf7c545f31ab979cdc6590d):
-        * For rye:
-            ```
-            rye add cellbender --git=https://github.com/broadinstitute/CellBender.git@4334e8966217c3591bf7c545f31ab979cdc6590d
-            ```
-        * or normal pip installation:
-            ```
-            pip install --no-cache-dir -U git+https://github.com/broadinstitute/CellBender.git@4334e8966217c3591bf7c545f31ab979cdc6590d
-            ```
+        * There's an issue document on the [README of the GitHub page](https://github.com/broadinstitute/CellBender), regarding checkpoint/saving issues on v0.3.1. A discussion on this can be found [here](https://github.com/broadinstitute/CellBender/issues/386). The suggested solution was to pull from this recent commit: [`4334e8966217c3591bf7c545f31ab979cdc6590d`](https://github.com/lukabor/CellBender/commit/4334e8966217c3591bf7c545f31ab979cdc6590d):\
+        For rye:
+        ```
+        rye add cellbender --git=https://github.com/broadinstitute/CellBender.git@4334e8966217c3591bf7c545f31ab979cdc6590d
+        ```
+        or normal pip installation:
+        ```
+        pip install --no-cache-dir -U git+https://github.com/broadinstitute/CellBender.git@4334e8966217c3591bf7c545f31ab979cdc6590d
+        ```
     * [PyTables](https://www.pytables.org/usersguide/installation.html)
-* R Dependencies:
-can be found in the Rmd file too
+* R Dependencies:\
+Can be found in the Rmd file too
     * BioConductor:
         * Seurat
         * patchwork
@@ -79,8 +79,10 @@ See the .Rmd file for details. Broadly, the steps are:
     1. Pull the CellBender data into Seurat.
     2. Filter samples based on UMIs (counts), genes (features), mitochrondial gene ratio, and UMIs/gene.
     3. Run [DoubletFinder](https://github.com/chris-mcginnis-ucsf/DoubletFinder) without ground truth, from [McGinnis et al. 2019](https://www.cell.com/cell-systems/fulltext/S2405-4712(19)30073-0).
-2. <a name="anchor"></a>Pool datasets togther and integrate.
-
+2. Pool datasets togther and integrate.
+> [!NOTE]
+> <a name="anchor"></a> **^^^ ^^^ ^^^ I'M CURRENTLY AT THIS STEP ^^^ ^^^ ^^^**\
+> Awaiting Presidio access to run CellBender on additional datasets.
 
 ### Step 4a. Cluster Identification
 * Identify graph-based clusters, visualize (PCA, UMAP, tSNE), and annotate clusters by marker genes using Seurat.
