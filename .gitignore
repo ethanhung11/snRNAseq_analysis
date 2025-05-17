@@ -1,5 +1,9 @@
 #
-/data
+*/CellBender/
+*/CellRanger/
+*/preprocessed/
+*/test/
+*.gz
 
 ### R ###
 # History files
