@@ -1,9 +1,12 @@
 #
-*/CellBender/
-*/CellRanger/
+*/raw/
+*/cellranger/
+*/cellbender/
 */preprocessed/
 */test/
 *.gz
+*.tsv
+*.mtx
 
 ### R ###
 # History files
