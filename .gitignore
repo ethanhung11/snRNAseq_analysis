@@ -1,14 +1,17 @@
 #
-*/outs/
-*/data/
+*/outs
+*/data
 */raw/
 */cellranger/
 */cellbender/
 */processed/
 */test/
+*/refdata*
 *.gz
 *.tsv
 *.mtx
+*.out
+*.pickle
 
 ### R ###
 # History files
