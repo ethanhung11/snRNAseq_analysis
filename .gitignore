@@ -1,8 +1,10 @@
 #
+*/outs/
+*/data/
 */raw/
 */cellranger/
 */cellbender/
-*/preprocessed/
+*/processed/
 */test/
 *.gz
 *.tsv

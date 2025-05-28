@@ -10,3 +10,5 @@ wget -O ./data/raw/GSM7747187/SRR25819156_S0_L001_R1_001.fastq.gz -nc ftp://ftp.
 wget -O ./data/raw/GSM7747187/SRR25819157_S0_L001_R1_001.fastq.gz -nc ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR258/057/SRR25819157/SRR25819157.fastq.gz
 wget -O ./data/raw/GSM7747187/SRR25819158_S0_L001_R1_001.fastq.gz -nc ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR258/058/SRR25819158/SRR25819158_1.fastq.gz
 wget -O ./data/raw/GSM7747187/SRR25819158_S0_L001_R2_001.fastq.gz -nc ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR258/058/SRR25819158/SRR25819158_2.fastq.gz
+
+echo "COMPLETE!"

@@ -73,48 +73,28 @@ Replicating analysis by [So et al. 2025](https://elifesciences.org/articles/9798
     * General:
         * tidyverse
         * here
-        * devtools
+        * remote
 ```
-library(devtools)
-devtools::install_github('chris-mcginnis-ucsf/DoubletFinder')
-devtools::install_github("immunogenomics/presto")
+library(remotes)
+remotes::install_github('chris-mcginnis-ucsf/DoubletFinder')
+remotes::install_github("immunogenomics/presto")
 ```
 
 ### Step 1. Generate Count Matrix (CellRanger)
 * `cellranger count` used to align/map FASTQ reads. See `cellcounting.sh` for proper usage.
 * Authors use CellBender to call cells, but CellRanger has this functionality. See here for a [discussion of differences](https://bioinformatics.stackexchange.com/questions/20497/how-do-cellranger-and-cellbender-call-cells-what-is-the-difference-between-them).
+To run `cellcounting.sh`, see the example below:
 ```
-cellranger count --id {DESIRED NAME} \
-                --create-bam {LEAVE FALSE} \
-                --output-dir {OUTPUT DIR} \
-                --transcriptome {REF GENOME} \
-                --fastqs {INPUT DIR} \
-                --sample {SAMPLE NAME, BASED ON FILE} \
-                --localcores {# COREs} \
-                --localmem {MAX GB MEM}
-```
-```
-cellranger aggr --id {DESIRED NAME}  \
-                --csv {CONFIG SETTINGS} \
-                --output-dir  {OUTPUT DIR} \
-                --localcores {# COREs} \
-                --localmem {MAX GB MEM}
-```
-```
-cellranger multi --id {DESIRED NAME}  \
-                --csv {CONFIG SETTINGS} \
-                 --output-dir  {OUTPUT DIR} \
-                --localcores {# COREs} \
-                --localmem {MAX GB MEM}
+./src/scripts/cellcounting.sh -i GSM7747186 -o cellcounting.out
 ```
 
 ### Step 2. Call Cells (CellBender & Python)
 * `cellbender remove-background` used to clean technical artifacts from sequencing data. See `cellbending.sh` for proper usage.
-* To complete analysis using Seurat in R (see [the tutorial](https://cellbender.readthedocs.io/en/latest/tutorial/index.html#open-in-seurat)) you must also use the command `ptrepack` for compatibility, which requires PyTables:
+* To complete analysis using Seurat in R (see [the tutorial](https://cellbender.readthedocs.io/en/latest/tutorial/index.html#open-in-seurat) the command `ptrepack` must also be run for compatibility, which requires PyTables.
+To run `cellbending.sh`, see the example below:
 ```
-ptrepack --complevel 5 data/CellBender/[filename].h5:/matrix data/CellRanger/[filename]_seurat.h5:/matrix
+./src/scripts/cellbending.sh -i GSM7747185,GSM7747186,GSM7747187,GSM7747188 -o cellbending.out
 ```
-
 
 ### Step 3. Data Pre-Processing (Seurat).
 See the .Rmd file for details. Broadly, the steps are:

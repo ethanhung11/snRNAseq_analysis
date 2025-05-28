@@ -8,9 +8,10 @@ authors = [
 dependencies = [
     "tables>=3.10.1",
     "cellbender @ git+https://github.com/broadinstitute/CellBender.git@4334e8966217c3591bf7c545f31ab979cdc6590d",
+    "pacmap==0.8.0",
 ]
 readme = "README.md"
-requires-python = ">= 3.10"
+requires-python = ">= 3.12"
 
 [build-system]
 requires = ["hatchling"]
