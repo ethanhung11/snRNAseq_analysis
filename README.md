@@ -1,5 +1,6 @@
 # snRNAseq-analysis
 
+
 Replicating analysis by [So et al. 2025](https://elifesciences.org/articles/97981#s4-9-1)
 * snRNAseq data was made available here: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE241987
 * note, I use [Rye](https://rye.astral.sh/) for package management.
@@ -66,6 +67,7 @@ Replicating analysis by [So et al. 2025](https://elifesciences.org/articles/9798
     └── requirements.lock       # Rye project management
 ```
 
+# Steps
 In this example, I have raw data from 4 experiments `GSM7747185` through `GSM7747188` (each is it's own condition, and has 1-2 samples each). These 4 experiments are grouped into 1 experiment set called `paper_processed`.
 
 ### Step 0a. Access Data
@@ -138,7 +140,7 @@ See the .Rmd file for details. Broadly, the steps are:
 * For improved granularity, select a `subset` of cells within a clusters, then cluster again.
 > [!IMPORTANT]
 > Haven't looked into this yet!
-* Annotate using [clusterProfiler](https://bioconductor.org/packages/release/bioc/html/clusterProfiler.html) if desired (per the example paper).
+> * Annotate using [clusterProfiler](https://bioconductor.org/packages/release/bioc/html/clusterProfiler.html) if desired (per the example paper).
 
 
 
@@ -146,7 +148,7 @@ See the .Rmd file for details. Broadly, the steps are:
 * Group counts by sample and condition using [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
 
 > [!NOTE]
-> <a name="anchor"></a> $${\color{lightblue}I'm \space Here!}$$
+> <a name="anchor"></a> <span style="color: blue;">I'm here!</span>
 
 * Identify DEGs based on 0.05FDR and absolute 2FC.
 * Cluster genes within each condition based with K-means using [Morpheus](https://software.broadinstitute.org/morpheus/), per the example paper.
@@ -156,16 +158,19 @@ See the .Rmd file for details. Broadly, the steps are:
 > [!IMPORTANT]
 > Haven't looked into this yet!
 
+# Bibliography & Readings
 I will create a .bib at some point, but until then here are some useful reads:
-[BioConductor Intro to SComics](https://bioconductor.org/books/3.13/OSCA/)
-[CellRanger (Lun et al. 2019)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1662-y)
-[CellBender (Fleming et al. 2023)](https://www.nature.com/articles/s41592-023-01943-7)
-[DoubletFinder (McGinnes et al. 2019)](https://www.sciencedirect.com/science/article/pii/S2405471219300730?via%3Dihub)
-[SCTransform in Seurat (Hafemeister & Satija 2019)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1874-1)
-[clusterProfiler (Wu et al. 2021)](https://www.sciencedirect.com/science/article/pii/S2666675821000667?via%3Dihub)
-[MetaScape (Zhou et al. 2019)](https://www.nature.com/articles/s41467-019-09234-6))
+* [BioConductor Intro to SComics (R, but not Seurat)](https://bioconductor.org/books/3.13/OSCA/)
+* [SeuratV3 tutorial (R)](https://satijalab.org/seurat/articles/pbmc3k_tutorial) (don't use the DGEs here for anything other than annotation)
+* [SCVerse Best Practices (Python)](https://www.sc-best-practices.org/preamble.html)
+* [CellRanger (Lun et al. 2019)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1662-y)
+* [CellBender (Fleming et al. 2023)](https://www.nature.com/articles/s41592-023-01943-7)
+* [DoubletFinder (McGinnes et al. 2019)](https://www.sciencedirect.com/science/article/pii/S2405471219300730?via%3Dihub)
+* [SCTransform in Seurat (Hafemeister & Satija 2019)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1874-1)
+* [clusterProfiler (Wu et al. 2021)](https://www.sciencedirect.com/science/article/pii/S2666675821000667?via%3Dihub)
+* [MetaScape (Zhou et al. 2019)](https://www.nature.com/articles/s41467-019-09234-6))
 
-# A list of other Problems I ran into:
+# A list of other problems I ran into:
 - Issue: can't add CellBender into Rye
     - Solution: Install cellbender into a conda environment. `conda_cellbender.yml` attached for convenience.
 - Issue: Rye installation of `package` led to clang not found error:
