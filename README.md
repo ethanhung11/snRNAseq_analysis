@@ -28,7 +28,7 @@ Replicating analysis by [So et al. 2025](https://elifesciences.org/articles/9798
     │   │   │   └── #...
     │   │   └── #...
     │   ├── raw
-    │   │   ├── experiment_set1
+    │   │   ├── experiment1
     │   │   │   ├── sample1.fastq.gz
     │   │   │   └── #...
     │   │   └── #...
@@ -40,7 +40,7 @@ Replicating analysis by [So et al. 2025](https://elifesciences.org/articles/9798
     │   │   └── #...
     ├── plots                   # plots if desired
     ├── references              # ref genomes, databases, etc.
-    ├── src
+    ├── src                     # Anything starting with a # is not yet implemented
     │   ├── Python
     │   │   ├── preprocess.py
     │   │   ├── analysis.py
@@ -65,6 +65,8 @@ Replicating analysis by [So et al. 2025](https://elifesciences.org/articles/9798
     ├── requirements-dev.lock   # Rye project management
     └── requirements.lock       # Rye project management
 ```
+
+In this example, I have raw data from 4 experiments `GSM7747185` through `GSM7747188` (each is it's own condition, and has 1-2 samples each). These 4 experiments are grouped into 1 experiment set called `paper_processed`.
 
 ### Step 0a. Access Data
 * **PREPROCESSED DATA:**
@@ -91,36 +93,33 @@ Replicating analysis by [So et al. 2025](https://elifesciences.org/articles/9798
 
 ### Step 0b: Prepare Analysis Dependencies
 * R Dependencies:
-    * Analysis:
+    * anything in the scripts
         * Seurat (and other Seurat packages, see [here](https://satijalab.org/seurat/articles/install.html#seurat-v5-seurat-5-install-from-github))
-        * patchwork
-        * hdf5r
         * DoubletFinder (use `chris-mcginnis-ucsf/DoubletFinder`)
         * presto (use `immunogenics/presto`)
-    * General:
-        * tidyverse
-        * here
-        * remote
-Example to install remote Github package
+Example on how to install remote Github package:
 ```
 library(remotes)
 remotes::install_github('chris-mcginnis-ucsf/DoubletFinder')
 ```
 
 ### Step 1. Generate Count Matrix (CellRanger)
-* `cellranger count` used to align/map FASTQ reads. See `cellcounting.sh` for proper usage.
+* `cellranger count` used to align/map FASTQ reads.
+* See `cellcounting.sh`, which searches `./data/raw` for various experiments (each of which should have the fastq.gz files inside).
 * Authors use CellBender to call cells, but CellRanger has this functionality. See here for a [discussion of differences](https://bioinformatics.stackexchange.com/questions/20497/how-do-cellranger-and-cellbender-call-cells-what-is-the-difference-between-them).
 To run `cellcounting.sh`, see the example below:
 ```
-./src/scripts/cellcounting.sh -i GSM7747186 -o cellcounting.out
+./src/scripts/cellcounting.sh -i GSM7747185,GSM7747186,GSM7747187,GSM7747188 -o cellcounting.out
 ```
 
-### Step 2. Call Cells (CellBender & Python)
-* `cellbender remove-background` used to clean technical artifacts from sequencing data. See `cellbending.sh` for proper usage.
-* To complete analysis using Seurat in R (see [the tutorial](https://cellbender.readthedocs.io/en/latest/tutorial/index.html#open-in-seurat) the command `ptrepack` must also be run for compatibility, which requires PyTables.
+### Step 2. Call Cells (CellBender)
+* `cellbender remove-background` used to clean technical artifacts from sequencing data.
+* The script checks for the cellbender env. If you have one, just change the name in the script. Otherwise, the script will create one using `mamba` (change `mamba` -> `conda` if you don't have mamba)
+* See `cellbending.sh`, which searches the provided directory (e.g. experiment_set1) for various experiments, which should have at least one sample that's in cellranger output format.
+* To complete analysis using Seurat in R (see [the tutorial](https://cellbender.readthedocs.io/en/latest/tutorial/index.html#open-in-seurat) the command `ptrepack` must also be run for compatibility, which requires PyTables. This is implemented in the shell script.
 To run `cellbending.sh`, see the example below:
 ```
-./src/scripts/cellbending.sh -i GSM7747185,GSM7747186,GSM7747187,GSM7747188 -o cellbending.out
+./src/scripts/cellbending.sh -i ./data/cellranger/paper_processed -o cellbending.out
 ```
 
 ### Step 3. Data Pre-Processing (Seurat).
@@ -129,29 +128,33 @@ See the .Rmd file for details. Broadly, the steps are:
     1. Pull the CellBender data into Seurat.
     2. Filter samples based on UMIs (counts), genes (features), mitochrondial gene ratio, and UMIs/gene.
     3. Run [DoubletFinder](https://github.com/chris-mcginnis-ucsf/DoubletFinder) without ground truth.
-    4. Run cell stage scoring & regress out those genes.
+    4. If using Seurat, can run cell stage scoring & regress out those genes (and mt/rb genes).
 2. Pool datasets togther and integrate.
+3. Identify graph-based clusters & visualize (PCA, UMAP, tSNE).
 
 
 ### Step 4a. Cluster Identification (Seurat)
-* Identify graph-based clusters & visualize (PCA, UMAP, tSNE).
-* Annotate clusters by marker genes using Seurat (see [FindMarkers](https://satijalab.org/seurat/articles/pbmc3k_tutorial.html#finding-differentially-expressed-features-cluster-biomarkers))
-* For improved granularity, select a `subset` of cells within a clusters, then cluster again and annotate using [clusterProfiler](https://bioconductor.org/packages/release/bioc/html/clusterProfiler.html).
+* Annotate clusters by marker genes using Seurat (see [FindMarkers](https://satijalab.org/seurat/articles/pbmc3k_tutorial.html#finding-differentially-expressed-features-cluster-biomarkers)) or in this case, markers are provided in the paper.
+* For improved granularity, select a `subset` of cells within a clusters, then cluster again.
+> [!IMPORTANT]
+> Haven't looked into this yet!
+* Annotate using [clusterProfiler](https://bioconductor.org/packages/release/bioc/html/clusterProfiler.html) if desired (per the example paper).
+
 
 
 ### Step 4b. Differentially Expressed Genes & Pathway Analysis (Seurat, Morpheus, & Metascape)
 * Group counts by sample and condition using [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
 
 > [!NOTE]
-> <a name="anchor"></a> $${\color{lightblue}I'm \space Here!}$$\
+> <a name="anchor"></a> $${\color{lightblue}I'm \space Here!}$$
 
 * Identify DEGs based on 0.05FDR and absolute 2FC.
-* Cluster genes within each condition based with K-means using [Morpheus](https://software.broadinstitute.org/morpheus/).
-* Pathway analysis for each gene cluster using [Metascape](https://metascape.org/gp/index.html#/main/step1).
+* Cluster genes within each condition based with K-means using [Morpheus](https://software.broadinstitute.org/morpheus/), per the example paper.
+* Pathway analysis for each gene cluster using [Metascape](https://metascape.org/gp/index.html#/main/step1), per the example paper.
 
 ### Step 4c. Cell-Cell Interactions (NicheNet & CellChat)
 > [!IMPORTANT]
-> Haven't gotten here yet!
+> Haven't looked into this yet!
 
 I will create a .bib at some point, but until then here are some useful reads:
 [BioConductor Intro to SComics](https://bioconductor.org/books/3.13/OSCA/)
