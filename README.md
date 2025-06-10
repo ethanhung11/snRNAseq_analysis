@@ -34,11 +34,11 @@ Replicating analysis by [So et al. 2025](https://elifesciences.org/articles/9798
     │   │   │   └── #...
     │   │   └── #...
     │   └── preprocessed
-    │   │   ├── object.pickle
-    │   │   ├── object.Rds
-    │   │   ├── object.h5ad
-    │   │   ├── object.h5
-    │   │   └── #...
+    │       ├── object.pickle
+    │       ├── object.Rds
+    │       ├── object.h5ad
+    │       ├── object.h5
+    │       └── #...
     ├── plots                   # plots if desired
     ├── references              # ref genomes, databases, etc.
     ├── src                     # Anything starting with a # is not yet implemented
