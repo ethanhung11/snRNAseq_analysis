@@ -1,0 +1,84 @@
+---
+title: "Analysis"
+author: "Ethan Hung"
+output: html_document
+---
+
+# Prep
+
+## Libraries
+
+```{r}
+library(here)
+library(dplyr)
+library(ggplot2)
+
+library(patchwork)
+library(Seurat)
+library(presto)
+library(reticulate)
+
+reticulate::use_condaenv(condaenv = "pacmap", conda = "auto")
+# https://satijalab.org/seurat/articles/install_v5.html
+# https://htmlpreview.github.io/?https://github.com/satijalab/seurat-wrappers/blob/master/docs/pacmap.html
+pacmap <- reticulate::import("pacmap")
+```
+
+# Visualization
+
+-   <https://satijalab.org/seurat/articles/pbmc3k_tutorial.html#finding-differentially-expressed-features-cluster-biomarkers>
+
+```{r}
+# Cluster
+#----------------------------------------------------------------------------
+SNdata <- readRDS(here("data","processed_seurat.Rds"))
+
+SNdata <- FindNeighbors(SNdata, reduction = "integrated.cca", dims = 1:30)
+FindClusters(resolution = 2, cluster.name = "cca_clusters")
+  
+RunUMAP(reduction = "integrated.cca", dims = 1:30, reduction.name = "umap.cca") %>%
+  DimPlot(reduction = "umap.cca", combine = FALSE, label.size = 2, group.by = c("Method", "predicted.celltype.l2", "cca_clusters"))
+```
+
+# DEG analysis
+
+```{r}
+# find all markers of cluster 2
+FindMarkers(SNdata, ident.1 = 2)
+
+# find all markers distinguishing cluster 5 from clusters 0 and 3
+cluster5.markers <- FindMarkers(pbmc, ident.1 = 5, ident.2 = c(0, 3))
+head(cluster5.markers, n = 5)
+
+# find markers for every cluster compared to all remaining cells, report only the positive
+# ones
+pbmc.markers <- FindAllMarkers(pbmc, only.pos = TRUE)
+pbmc.markers %>%
+    group_by(cluster) %>%
+    dplyr::filter(avg_log2FC > 1)
+
+# plot genes "MS4A1" & "CD79A"
+VlnPlot(pbmc, features = c("MS4A1", "CD79A"))
+# Other options: log = TRUE
+
+# plot UMAP, colored by features
+FeaturePlot(pbmc, features = c("MS4A1", "CD79A"))
+
+# plot heatmap
+pbmc.markers %>%
+    group_by(cluster) %>%
+    dplyr::filter(avg_log2FC > 1) %>%
+    slice_head(n = 10) %>%
+    ungroup() -> top10
+DoHeatmap(pbmc, features = top10$gene) + NoLegend()
+```
+
+# Cell Type Annotation
+
+see:
+
+-   manual annotation <https://satijalab.org/seurat/articles/pbmc3k_tutorial.html#assigning-cell-type-identity-to-clusters>
+
+```{r}
+
+```

@@ -1,0 +1,196 @@
+---
+title: "Preprocessing"
+author: "Ethan Hung"
+output: html_document
+---
+
+# Prep
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(optparse)
+
+# Define command line options
+option_list <- list(
+  make_option(c("-d", "--directory"), type="character", default=NULL, 
+              help="Directory to process [required]", metavar="character"),
+  make_option(c("-o", "--output"), type="character", default=NULL, 
+              help="Output file path [optional]", metavar="character")
+)
+
+# Parse command line arguments (when run via Rscript)
+opt_parser <- OptionParser(option_list=option_list)
+opt <- parse_args(opt_parser)
+```
+
+## Libraries & Install
+
+```{r}
+library(here)
+library(dplyr)
+library(ggplot2)
+
+library(hdf5r)
+library(patchwork)
+library(Seurat)
+library(sctransform)
+library(DoubletFinder)
+
+#' For details regarding methodology & approach, see:
+#' https://github.com/satijalab/seurat/issues/1679 # cell cycle removal
+#' https://github.com/satijalab/seurat/issues/6087 # general order of steps ?
+```
+
+## Pull CellBender data
+
+```{r}
+# Raw Data
+print(here())
+start <- Sys.time()
+datasets = %>%
+  lapply(Read10X) %>%
+  lapply(CreateSeuratObject, min.cells=10)
+print(Sys.time()-start)
+
+printData <- function(seurat.obj) {
+  paste(c("cells: ", as.character(length(Cells(seurat.obj))), " genes: ", as.character(length(Features(seurat.obj)))), collapse = '')
+}
+```
+
+## Testing
+
+```{r}
+SNdata <- datasets[[2]]
+Cells(SNdata) %>% head()
+Features(SNdata) %>% head()
+dim(SNdata[["RNA"]])
+Assays(SNdata) %>% print()
+
+print("MITOCHONDRIAL GENES")
+Features(SNdata)[Features(SNdata) %>% grep(pattern="^Mt")]
+print("RIBOSOMAL GENES")
+Features(SNdata)[Features(SNdata) %>% grep(pattern="^Rp")]
+```
+
+# Pre-Processing Filters
+
+## QC Checks
+
+-   Using SCTransform: <https://satijalab.org/seurat/articles/sctransform_vignette>
+
+```{r, fig.width=12, fig.height=12}
+# QC scores
+# ----------------------------------------------------------------------------
+SNdata[["percent.mt"]] <- PercentageFeatureSet(SNdata, pattern = "^Mt")/100
+SNdata[["percent.rb"]] <- PercentageFeatureSet(SNdata, pattern = "^Rb")/100
+SNdata[["CountPerFeature"]] <- log10(SNdata$nFeature_RNA) / log10(SNdata$nCount_RNA)
+# Plotting QC
+visualizations = T
+if (visualizations) {
+  VlnPlot(SNdata, features = c("nFeature_RNA", "nCount_RNA", "percent.mt", "percent.rb"), ncol = 2) +
+    FeatureScatter(SNdata, feature1 = "nCount_RNA", feature2 = "percent.mt") +
+    FeatureScatter(SNdata, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+}
+
+# each sample was further filtered...based on the number of UMIs (≥500) and genes (≥250), mitochondrial ratio (<15%), and the number of genes detected per UMI (>0.8)
+verbose = T
+if (verbose) {
+  sum(SNdata$nCount_RNA<=500) %>% print()
+  sum(SNdata$nFeature_RNA<=250) %>% print()
+  sum(SNdata$percent.mt>=0.15) %>% print()
+  sum(SNdata$percent.rb>=0.15) %>% print()
+  sum(SNdata$CountPerFeature<=0.8) %>% print()
+}
+SNdata <- subset(SNdata, subset = nCount_RNA>500 & nFeature_RNA>250 & percent.mt<0.15 & percent.rb<0.15 & CountPerFeature>0.8)
+
+
+# filter out mitochondrial genes
+SNdata <- SNdata[!grepl("^Mt-", rownames(SNdata)), ]
+SNdata <- SNdata[!grepl("^Rp-", rownames(SNdata)), ]
+
+
+# SCTransform for Normalization
+# ----------------------------------------------------------------------------
+SNdata <- SCTransform(SNdata) %>%
+  RunPCA(npcs = 30, verbose = FALSE) %>%
+  RunUMAP(reduction = "pca", dims = 1:30, verbose = FALSE) %>%
+  FindNeighbors(reduction = "pca", dims = 1:30, verbose = FALSE) %>%
+  FindClusters(resolution = 0.7, verbose = FALSE)
+
+paste(c("cells: ", as.character(length(Cells(SNdata))), " genes: ", as.character(length(Features(SNdata)))), collapse = '')
+
+## Find relevant PCS
+stdv <- SNdata[["pca"]]@stdev
+percent_stdv <- (stdv/sum(stdv)) * 100
+cumulative <- cumsum(percent_stdv)
+df <- data.frame(r2=percent_stdv,comp=c(1:length(percent_stdv)))
+ggplot(df, aes(x=comp, y=r2)) +
+  geom_bar(stat = "identity")
+nPCs <- 30
+```
+
+## DoubletFinder
+
+-   <https://biostatsquid.com/doubletfinder-tutorial/>
+-   <https://github.com/chris-mcginnis-ucsf/DoubletFinder>
+
+```{r}
+
+## 1. pK Identification (no ground-truth)
+#----------------------------------------------------------------------------
+sweep.res.list <- paramSweep(SNdata, PCs = 1:nPCs, sct=TRUE)
+sweep.stats <- summarizeSweep(sweep.res.list, GT = FALSE)
+bcmvn <- find.pK(sweep.stats)
+optimal.pk <- bcmvn %>% 
+  filter(BCmetric == max(BCmetric)) %>%
+  select(pK)
+optimal.pk <- as.numeric(as.character(optimal.pk[[1]]))
+
+# 2. Homotypic Doublet Proportion Estimate
+#----------------------------------------------------------------------------
+annotations <- SNdata@meta.data$ClusteringResults
+homotypic.prop <- modelHomotypic(annotations)
+
+findDoubletRate = F
+if (findDoubletRate){
+  # 10X multiplet rates table
+  #https://rpubs.com/kenneditodd/doublet_finder_example
+  multiplet_rates_10x <- data.frame('Multiplet_rate'= c(0.004, 0.008, 0.0160, 0.023, 0.031, 0.039, 0.046, 0.054, 0.061, 0.069, 0.076),
+                                  'Loaded_cells' = c(800, 1600, 3200, 4800, 6400, 8000, 9600, 11200, 12800, 14400, 16000),
+                                  'Recovered_cells' = c(500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000))
+
+  multiplet_rate <- multiplet_rates_10x %>% dplyr::filter(Recovered_cells < nrow(SNdata@meta.data)) %>% 
+    dplyr::slice(which.max(Recovered_cells)) %>% # select the min threshold depending on your number of samples
+    dplyr::select(Multiplet_rate) %>% as.numeric(as.character()) # get the expected multiplet rate
+} else {
+  multiplet_rate=0.075
+}
+nExp_poi <- round(multiplet_rate*nrow(SNdata@meta.data))  ## Assuming 7.5% doublet formation rate
+nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
+
+## 3. Run DoubletFinder
+#----------------------------------------------------------------------------
+SNdata <- doubletFinder(SNdata, PCs = 1:nPCs, pK = optimal.pk, nExp = nExp_poi, reuse.pANN = NULL, sct=TRUE)
+colnames(SNdata@meta.data)[grepl('DF.classifications.*', colnames(SNdata@meta.data))] <- "doublet_finder"
+SNdata <- subset(SNdata, subset = doublet_finder=='Singlet')
+paste(c("cells: ", as.character(length(Cells(SNdata))), " genes: ", as.character(length(Features(SNdata)))), collapse = '') 
+```
+
+## Regress out Cell Cycle & Mt genes
+
+-   <https://satijalab.org/seurat/articles/cell_cycle_vignette>
+
+```{r}
+# Cell Scoring
+SNdata <- CellCycleScoring(
+  object = SNdata,
+  g2m.features = cc.genes$g2m.genes,
+  s.features = cc.genes$s.genes
+)
+
+SNdata <- SCTransform(
+  SNdata,
+  min_cells=10,
+  vars.to.regress = c('percent.mt', 'S.Score', 'G2M.Score')
+)
+```

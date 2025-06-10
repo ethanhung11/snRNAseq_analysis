@@ -1,0 +1,95 @@
+---
+title: "testing"
+output: html_document
+---
+
+# Prep
+
+## Libraries & Install
+```{r}
+library(here)
+library(dplyr)
+library(remotes)
+
+library(hdf5r)
+library(patchwork)
+library(Seurat)
+
+library(DoubletFinder)
+#remotes::install_github('chris-mcginnis-ucsf/DoubletFinder', force = TRUE)
+
+#' For details regarding methodology & approach, see:
+#' https://satijalab.org/seurat/articles/cell_cycle_vignette # tutorial
+#' https://github.com/satijalab/seurat/issues/1679 # cell cycle removal
+#' https://github.com/satijalab/seurat/issues/6087 # general order of steps
+```
+
+## Pull CellBender data
+```{r}
+# # Raw Data
+here()
+seqData_Filt <- CreateSeuratObject(counts = Read10X(data.dir = here("data", "preprocessed", "GSM7747185_Chow-eWAT")), project = "Chow-eWAT")
+
+print(ncol(seqData_Filt))
+seqData_Filt
+```
+
+# Analysis
+
+## Data Processing & QC
+```{r}
+# QC scores
+seqData_Filt[["percent.mt"]] <- PercentageFeatureSet(seqData_Filt, pattern = "^MT-")/100
+seqData_Filt[["CountPerFeature"]] <- log10(seqData_Filt$nFeature_RNA) / log10(seqData_Filt$nCount_RNA)
+
+# Plotting QC
+visualizations = F
+if (visualizations) {
+  VlnPlot(seqData_Filt, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+  plot1 <- FeatureScatter(seqData_Filt, feature1 = "nCount_RNA", feature2 = "percent.mt")
+  plot2 <- FeatureScatter(seqData_Filt, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+  plot1 + plot2
+}
+
+# each sample was further filtered...based on the number of UMIs (≥500) and genes (≥250), mitochondrial ratio (<15%), and the number of genes detected per UMI (>0.8)
+seqData_Filt <- subset(seqData_Filt, subset = nCount_RNA > 500 & nFeature_RNA > 250 & percent.mt < 0.15 & CountPerFeature > 0.8)
+```
+
+# Run DoubleFinder
+```{r}
+## pK Identification (no ground-truth) ---------------------------------------------------------------------------------------
+sweep.res.list <- paramSweep(seqData_Filt, PCs = 1:10, sct = T)
+sweep.stats <- summarizeSweep(sweep.res.list, GT = FALSE)
+bcmvn <- find.pK(sweep.stats)
+
+## Homotypic Doublet Proportion Estimate -------------------------------------------------------------------------------------
+homotypic.prop <- modelHomotypic(annotations)           ## ex: annotations <- seqData_Filt@meta.data$ClusteringResults
+nExp_poi <- round(0.075*nrow(seqData_Filt@meta.data))  ## Assuming 7.5% doublet formation rate - tailor for your dataset
+nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
+
+## Run DoubletFinder with varying classification stringencies ----------------------------------------------------------------
+seqData_Filt <- doubletFinder(seqData_Filt, PCs = 1:10, pN = 0.25, pK = 0.09, nExp = nExp_poi, reuse.pANN = NULL, sct = T)
+```
+
+```{r}
+SelectIntegrationFeatures()
+PrepSCTIntegration()
+FindIntegrationAnchors()
+IntegrateData()
+
+
+# # Cell Scoring, Post Integration
+# s.genes <- cc.genes$s.genes
+# g2m.genes <- cc.genes$g2m.genes
+# dat <- SCTransform(dat, assay = 'RNA', new.assay.name = 'SCT', vars.to.regress = c('percent.mt', 'nFeature_RNA', 'nCount_RNA', 'S.Score', 'G2M.Score'))
+```
+
+## Post Integration Visualizations
+```{r}
+seqData_Filt <- RunPCA(seqData_Filt, verbose = FALSE)
+seqData_Filt <- RunUMAP(seqData_Filt, dims = 1:30, verbose = FALSE)
+
+seqData_Filt <- FindNeighbors(seqData_Filt, dims = 1:30, verbose = FALSE)
+seqData_Filt <- FindClusters(seqData_Filt, verbose = FALSE)
+DimPlot(seqData_Filt, label = TRUE)
+```

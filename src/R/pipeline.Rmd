@@ -1,0 +1,108 @@
+---
+title: "Pipeline Testing"
+author: "Ethan Hung"
+output: html_document
+---
+
+# Prep
+
+## Libraries
+
+```{r libraries}
+library(glue)
+library(here)
+library(dplyr)
+library(parallel)
+library(ggplot2)
+source('preprocessing.R')
+here()
+```
+
+## Sample Preprocessing
+```{r preprocessing (single), eval=FALSE}
+{
+  opt <- list()
+  opt$note <- "testing"
+  opt$inputtype <- "h5"
+  opt$directories <- "data/cellbender/paper_raw/SRR25819152/output_filtered_seurat.h5,data/cellbender/paper_raw/SRR25819153/output_filtered_seurat.h5,data/cellbender/paper_raw/SRR25819154/output_filtered_seurat.h5,data/cellbender/paper_raw/SRR25819155/output_filtered_seurat.h5,data/cellbender/paper_raw/SRR25819158/output_filtered_seurat.h5,"
+  opt$doubletRate <- 0.075
+  opt$cores <- 10
+  opt$verbose <- TRUE
+  opt$visualizations <- TRUE
+  opt$directories <- unlist(strsplit(opt$directories, ","))
+}
+
+system.time(
+  datasets <- mclapply(opt$directories,retrieveData,inputtype=opt$inputtype,mc.cores=opt$cores)
+)
+# dataset <- retrieveData(opt$directories[[1]],inputtype=opt$inputtype)
+
+showDataset = T
+if (showDataset) {
+  printData(dataset)
+  Assays(dataset) %>% cat()
+  
+  cat("MITOCHONDRIAL GENES")
+  Features(dataset)[Features(dataset) %>% grep(pattern="^Mt")] %>% cat()
+  cat("RIBOSOMAL GENES")
+  Features(dataset)[Features(dataset) %>% grep(pattern="^Rp")] %>% cat()
+}
+
+system.time(
+processed_datasets <- mclapply(datasets,preprocessData,mc.cores=opt$cores,
+                               multipletRate=opt$multipletRate,
+                               visualize=opt$visualize,
+                               verbose=opt$verbose)
+)
+# datasets[[1]] %>% preprocessData(multipletRate=opt$multipletRate,
+#                               visualize=opt$visualize,
+#                               verbose=opt$verbose)
+
+savename <- here("data","processed",glue("{opt$note}-processed.Rds"))
+saveRDS(processed_datasets,savename)
+```
+
+## Sample Integration
+
+```{r integration (single), eval=FALSE}
+data <- readRDS(here("data","processed","paper_raw-processed.Rds"))
+integrated_data <- integrateData(data)
+
+# integrateData <- function(data,name="integrated") {
+name="integrated"
+data_labels <- data %>% lapply(attr,which="project.name") %>% unlist()
+merged_data <- merge(data[[1]], y = data[-1], add.cell.ids=data_labels, project = name)
+
+merged_data <- FindVariableFeatures(merged_data)
+merged_data <- RunPCA(merged_data)
+
+integrated_data <- IntegrateLayers(object = merged_data,
+                                   assay="SCT",
+                                   normalization.method = "SCT",
+                                   method = CCAIntegration)
+#   return(integrated_data)
+# }
+
+integrated_data <- integrated_data %>%
+  FindNeighbors(reduction = "integrated.dr", dims = 1:50) %>%
+  FindClusters(resolution = 0.5, cluster.name = "cca_clusters")%>%
+  RunUMAP(dims = 1:30, reduction = "integrated.dr")
+```
+
+```{r Plotting, fig.height=15, fig.width=15}
+tmp <- data[[5]]
+# tmp <- FindClusters(tmp, cluster.name="new_clusters", resolution=0.4)
+# tmp <- RunUMAP(tmp, dims=1:30, )
+
+tmp <- integrated_data
+
+# DimPlot(tmp, group.by = c("new_clusters"))
+tmp <- PrepSCTFindMarkers(tmp)
+pbmc.markers <- FindAllMarkers(tmp, only.pos = TRUE)
+
+markers.to.plot <- c("Adipoq", "Upk3b", "Pdgfra", "Cdh5", "Rgs5", "Adgre1", "Flt3", "Cpa3", "Skap1", "Igkc")
+DotPlot(tmp, features = markers.to.plot, cols = c("blue", "red"), dot.scale = 8) +
+    RotatedAxis()
+VlnPlot(tmp, features = markers.to.plot,pt.size = 0.2, ncol = 4)
+FeaturePlot(tmp, features = markers.to.plot, pt.size = 0.2, ncol = 4, )
+```
