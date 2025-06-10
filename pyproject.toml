@@ -12,6 +12,8 @@ dependencies = [
     "glasbey>=0.3.0",
     "rpy2>=3.6.1",
     "scvi>=0.6.8",
+    "cellphonedb>=5.0.1",
+    "celltypist>=1.6.3",
 ]
 readme = "README.md"
 requires-python = ">= 3.12"
