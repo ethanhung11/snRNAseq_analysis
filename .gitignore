@@ -6,7 +6,6 @@ references/
 Rplots.pdf
 
 *.cloupe
-*.ipynb
 *.gz
 *.tsv
 *.mtx

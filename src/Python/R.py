@@ -16,12 +16,20 @@ def get_converter():
 
 def R_preload() -> bool:
     ro.r('''
-    library(scry)
+    # single-cell general
     library(scater)
     library(scDblFinder)
     library(BiocParallel)
     library(Seurat)
-    library(dplyr)
-    library(DoubletFinder)
     options(Seurat.object.assay.version = "v3")
+         
+    # general
+    library(dplyr)
+
+    # others
+    library(scry)
+    library(DoubletFinder)
+    library(orthogene)
+         
+    options(max.print = 300)
     ''')

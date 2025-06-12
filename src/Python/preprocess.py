@@ -9,7 +9,7 @@ import scvi
 from doubletdetection import BoostClassifier
 from pacmap import LocalMAP
 import rpy2.robjects as ro
-from .R import get_converter
+from R import get_converter
 
 def get_cellbender_data(directory: str, filetype="h5"):
     if filetype == "h5":
