@@ -10,10 +10,16 @@
 #   universal: false
 
 -e file:.
+adjusttext==1.3.0
+    # via sc-toolbox
 anndata==0.11.4
+    # via anndata2ri
     # via cellphonedb
+    # via doubletdetection
     # via scanpy
     # via scvi
+anndata2ri==1.3.2
+    # via snrnaseq-analysis
 annoy==1.17.0
     # via pacmap
 anyio==4.9.0
@@ -26,6 +32,7 @@ argon2-cffi-bindings==21.2.0
 array-api-compat==1.12.0
     # via anndata
 arrow==1.3.0
+    # via cookiecutter
     # via isoduration
 asttokens==3.0.0
     # via stack-data
@@ -38,6 +45,8 @@ babel==2.17.0
     # via jupyterlab-server
 beautifulsoup4==4.13.4
     # via nbconvert
+binaryornot==0.4.4
+    # via cookiecutter
 biopython==1.85
     # via pycirclize
 black==25.1.0
@@ -54,17 +63,23 @@ certifi==2025.4.26
 cffi==1.17.1
     # via argon2-cffi-bindings
     # via rpy2-rinterface
+chardet==5.2.0
+    # via binaryornot
 charset-normalizer==3.4.2
     # via requests
 click==8.2.1
     # via black
     # via celltypist
+    # via cookiecutter
+    # via pypi-latest
 colorspacious==1.1.2
     # via glasbey
 comm==0.2.2
     # via ipykernel
 contourpy==1.3.2
     # via matplotlib
+cookiecutter==2.6.0
+    # via sc-toolbox
 cycler==0.12.1
     # via matplotlib
 debugpy==1.8.14
@@ -75,6 +90,8 @@ defusedxml==0.7.1
     # via nbconvert
 dnspython==2.7.0
     # via pymongo
+doubletdetection==4.3.0.post1
+    # via snrnaseq-analysis
 et-xmlfile==2.0.0
     # via openpyxl
 executing==2.2.0
@@ -129,11 +146,13 @@ isoduration==20.11.0
 jedi==0.19.2
     # via ipython
 jinja2==3.1.6
+    # via cookiecutter
     # via jupyter-server
     # via jupyterlab
     # via jupyterlab-server
     # via nbconvert
     # via rpy2-robjects
+    # via sc-toolbox
     # via torch
 joblib==1.5.0
     # via pynndescent
@@ -188,22 +207,30 @@ legacy-api-wrap==1.4.1
     # via scanpy
 leidenalg==0.10.2
     # via celltypist
+    # via phenograph
 llvmlite==0.44.0
     # via numba
     # via pynndescent
+markdown-it-py==3.0.0
+    # via rich
 markupsafe==3.0.2
     # via jinja2
     # via nbconvert
 matplotlib==3.10.3
+    # via adjusttext
+    # via doubletdetection
     # via glasbey
     # via plotnine
     # via pycirclize
+    # via sc-toolbox
     # via scanpy
     # via scvi
     # via seaborn
 matplotlib-inline==0.1.7
     # via ipykernel
     # via ipython
+mdurl==0.1.2
+    # via markdown-it-py
 mistune==3.1.3
     # via nbconvert
 mizani==0.13.5
@@ -240,12 +267,14 @@ numba==0.61.2
     # via scanpy
     # via umap-learn
 numpy==2.2.4
+    # via adjusttext
     # via anndata
     # via biopython
     # via cellphonedb
     # via celltypist
     # via colorspacious
     # via contourpy
+    # via doubletdetection
     # via geosketch
     # via glasbey
     # via h5py
@@ -258,6 +287,7 @@ numpy==2.2.4
     # via pacmap
     # via pandas
     # via patsy
+    # via phenograph
     # via plotnine
     # via pycirclize
     # via scanpy
@@ -331,6 +361,7 @@ pandas==2.3.0
     # via mizani
     # via plotnine
     # via pycirclize
+    # via sc-toolbox
     # via scanpy
     # via scvi
     # via seaborn
@@ -346,6 +377,8 @@ patsy==1.0.1
     # via statsmodels
 pexpect==4.9.0
     # via ipython
+phenograph==1.5.7
+    # via doubletdetection
 pillow==11.2.1
     # via matplotlib
 platformdirs==4.3.8
@@ -359,8 +392,10 @@ prometheus-client==0.22.1
     # via jupyter-server
 prompt-toolkit==3.0.51
     # via ipython
+    # via questionary
 psutil==7.0.0
     # via ipykernel
+    # via phenograph
 ptyprocess==0.7.0
     # via pexpect
     # via terminado
@@ -375,6 +410,7 @@ pygments==2.19.1
     # via ipython-pygments-lexers
     # via nbconvert
     # via pytest
+    # via rich
 pymongo==4.13.0
     # via hyperopt
 pynndescent==0.5.13
@@ -382,6 +418,8 @@ pynndescent==0.5.13
     # via umap-learn
 pyparsing==3.2.3
     # via matplotlib
+pypi-latest==0.1.2
+    # via sc-toolbox
 pytest==8.4.0
     # via cellphonedb
 python-dateutil==2.9.0.post0
@@ -391,14 +429,22 @@ python-dateutil==2.9.0.post0
     # via pandas
 python-json-logger==3.3.0
     # via jupyter-events
+python-slugify==8.0.4
+    # via cookiecutter
 pytz==2025.2
     # via pandas
 pyyaml==6.0.2
+    # via cookiecutter
     # via jupyter-events
+    # via pypi-latest
+    # via sc-toolbox
 pyzmq==26.4.0
     # via ipykernel
     # via jupyter-client
     # via jupyter-server
+questionary==2.1.0
+    # via pypi-latest
+    # via sc-toolbox
 referencing==0.36.2
     # via jsonschema
     # via jsonschema-specifications
@@ -406,6 +452,7 @@ referencing==0.36.2
 requests==2.32.4
     # via cellphonedb
     # via celltypist
+    # via cookiecutter
     # via jupyterlab-server
     # via ktplotspy
 rfc3339-validator==0.1.4
@@ -414,19 +461,28 @@ rfc3339-validator==0.1.4
 rfc3986-validator==0.1.1
     # via jsonschema
     # via jupyter-events
+rich==14.0.0
+    # via cookiecutter
+    # via pypi-latest
+    # via sc-toolbox
 rpds-py==0.25.1
     # via jsonschema
     # via referencing
 rpy2==3.6.1
+    # via anndata2ri
     # via snrnaseq-analysis
 rpy2-rinterface==3.6.1
     # via rpy2
     # via rpy2-robjects
 rpy2-robjects==3.6.1
     # via rpy2
+sc-toolbox==0.12.3
+    # via snrnaseq-analysis
 scanpy==1.11.2
     # via cellphonedb
     # via celltypist
+    # via doubletdetection
+    # via sc-toolbox
     # via scvi
     # via snrnaseq-analysis
 scikit-learn==1.6.1
@@ -435,18 +491,24 @@ scikit-learn==1.6.1
     # via geosketch
     # via glasbey
     # via pacmap
+    # via phenograph
     # via pynndescent
+    # via sc-toolbox
     # via scanpy
     # via scvi
     # via umap-learn
 scikit-misc==0.5.1
     # via scvi
 scipy==1.15.3
+    # via adjusttext
     # via anndata
+    # via doubletdetection
     # via hyperopt
     # via mizani
+    # via phenograph
     # via plotnine
     # via pynndescent
+    # via sc-toolbox
     # via scanpy
     # via scikit-learn
     # via statsmodels
@@ -455,6 +517,7 @@ scvi==0.6.8
     # via snrnaseq-analysis
 seaborn==0.13.2
     # via ktplotspy
+    # via sc-toolbox
     # via scanpy
     # via snrnaseq-analysis
 send2trash==1.8.3
@@ -463,6 +526,7 @@ session-info2==0.1.2
     # via scanpy
 setuptools==80.9.0
     # via jupyterlab
+    # via phenograph
     # via torch
     # via triton
 six==1.17.0
@@ -483,6 +547,8 @@ sympy==1.14.0
 terminado==0.18.1
     # via jupyter-server
     # via jupyter-server-terminals
+text-unidecode==1.3
+    # via python-slugify
 texttable==1.7.0
     # via igraph
 threadpoolctl==3.6.0
@@ -500,6 +566,7 @@ tornado==6.5.1
     # via terminado
 tqdm==4.67.1
     # via cellphonedb
+    # via doubletdetection
     # via hyperopt
     # via scanpy
     # via scvi
@@ -525,11 +592,13 @@ typing-extensions==4.14.0
     # via anyio
     # via beautifulsoup4
     # via referencing
+    # via sc-toolbox
     # via scanpy
     # via torch
 tzdata==2025.2
     # via pandas
 tzlocal==5.3.1
+    # via anndata2ri
     # via rpy2-robjects
 umap-learn==0.5.7
     # via scanpy
