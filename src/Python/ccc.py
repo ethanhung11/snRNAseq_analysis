@@ -61,7 +61,7 @@ def liana_mouse_resource(resource_name: Literal['baccin2019', 'cellcall', 'cellc
 
         isMouse = bool(re.search(r"[a-z]", res.iloc[0,0]))
         if isMouse is True:
-            print(f"found lowercase letters in first cell '{res.iloc[0,0]}' of {name}, not converting!")
+            print(f"found lowercase letters in first cell '{res.iloc[0,0]}' of '{name}', not converting!")
 
         else:
             if map_df is None:
@@ -74,34 +74,32 @@ def liana_mouse_resource(resource_name: Literal['baccin2019', 'cellcall', 'cellc
                 # rename the columns to source and target, respectively for the original organism and the target organism
                 map_df = map_df.rename(columns={'human_symbol':'source', 'mouse_symbol':'target'})
 
-            print(f"converting resource {name} from human to mouse")
+            print(f"converting resource '{name}' from human to mouse")
             res = human2mouse(res)
         
         resources[name] = res
 
-    return resources
+    if len(resources) > 1:
+        dfs = []
+        for name, df in resources.items():
+            temp = df.drop_duplicates().copy()
+            temp['db_sources'] = name
+            dfs.append(temp)
+        
+        # Concat all dataframes
+        merged = pd.concat(dfs, ignore_index=True)
+        cols = [c for c in merged.columns if c != 'db_sources']
+        
+        # Track duplicate sources
+        for _, group in merged.groupby(cols):
+            if len(group) > 1:
+                sources = ', '.join(sorted(group['db_sources']))
+                merged.loc[group.index, 'db_sources'] = sources
+        
+        # Remove duplicate rows, keep first
+        resources = merged.drop_duplicates(subset=cols, keep='first').reset_index(drop=True)
+    
+    else:
+        resources = resources[name]
 
-def merge_dbs(db_dict):
-    # Add source column and drop duplicates in one step
-    dfs = []
-    for name, df in db_dict.items():
-        temp = df.drop_duplicates().copy()
-        temp['db_sources'] = name
-        dfs.append(temp)
-    
-    # Concat all dataframes
-    merged = pd.concat(dfs, ignore_index=True)
-    
-    # Get original columns (exclude 'source')
-    cols = [c for c in merged.columns if c != 'db_sources']
-    
-    # Track duplicate sources
-    for _, group in merged.groupby(cols):
-        if len(group) > 1:
-            sources = ', '.join(sorted(group['db_sources']))
-            merged.loc[group.index, 'db_sources'] = sources
-    
-    # Remove duplicate rows, keep first
-    result = merged.drop_duplicates(subset=cols, keep='first')
-    
-    return result
+    return resources
