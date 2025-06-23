@@ -5,6 +5,7 @@ from typing import List,Literal
 import requests
 import io
 import re
+from tqdm import tqdm
 
 def get_cellphonedbv5_resource():
     # see https://github.com/saezlab/pypath/issues/269#issuecomment-2538243027
@@ -50,9 +51,15 @@ def liana_mouse_resource(resource_name: Literal['baccin2019', 'cellcall', 'cellc
         resource_name = [resource_name]
     
     resources = dict()
-    map_df = None
+    map_df = li.rs.get_hcop_orthologs(url='https://ftp.ebi.ac.uk/pub/databases/genenames/hcop/human_mouse_hcop_fifteen_column.txt.gz',
+                                    columns=['human_symbol', 'mouse_symbol'],
+                                    # NOTE: HCOP integrates multiple resource, so we can filter out mappings in at least 3 of them for confidence
+                                    min_evidence=3
+                                    )
+    map_df = map_df.rename(columns={'human_symbol':'source', 'mouse_symbol':'target'})
 
-    for name in resource_name:
+    for name in (pbar := tqdm(resource_name)):
+        pbar.set_description(f"Processing {name}")
         if name == 'cellphonedbv5':
             res = get_cellphonedbv5_resource()
         else:
@@ -62,20 +69,8 @@ def liana_mouse_resource(resource_name: Literal['baccin2019', 'cellcall', 'cellc
         isMouse = bool(re.search(r"[a-z]", res.iloc[0,0]))
         if isMouse is True:
             print(f"found lowercase letters in first cell '{res.iloc[0,0]}' of '{name}', not converting!")
-
         else:
-            if map_df is None:
-                map_df = li.rs.get_hcop_orthologs(url='https://ftp.ebi.ac.uk/pub/databases/genenames/hcop/human_mouse_hcop_fifteen_column.txt.gz',
-                                                columns=['human_symbol', 'mouse_symbol'],
-                                                # NOTE: HCOP integrates multiple resource, so we can filter out mappings in at least 3 of them for confidence
-                                                min_evidence=3
-                                                )
-                
-                # rename the columns to source and target, respectively for the original organism and the target organism
-                map_df = map_df.rename(columns={'human_symbol':'source', 'mouse_symbol':'target'})
-
-            print(f"converting resource '{name}' from human to mouse")
-            res = human2mouse(res)
+            res = human2mouse(res, map_df)
         
         resources[name] = res
 

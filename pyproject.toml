@@ -17,7 +17,7 @@ dependencies = [
     "sc-toolbox>=0.12.3",
     "liana>=1.5.1",
     "pydeseq2>=0.5.1",
-    "decoupler>=2.0.6",
+    "decoupler[full]>=2.0.6",
 ]
 readme = "README.md"
 requires-python = ">= 3.12"

@@ -30,6 +30,8 @@ array-api-compat==1.12.0
     # via anndata
 arrow==1.3.0
     # via cookiecutter
+asttokens==3.0.0
+    # via stack-data
 binaryornot==0.4.4
     # via cookiecutter
 certifi==2025.4.26
@@ -47,12 +49,18 @@ click==8.2.1
     # via pypi-latest
 colorspacious==1.1.2
     # via glasbey
+comm==0.2.2
+    # via ipywidgets
 contourpy==1.3.2
     # via matplotlib
 cookiecutter==2.6.0
     # via sc-toolbox
 cycler==0.12.1
     # via matplotlib
+dcor==0.6
+    # via decoupler
+decorator==5.2.1
+    # via ipython
 decoupler==2.0.6
     # via snrnaseq-analysis
 distlib==0.3.9
@@ -64,6 +72,8 @@ docrep==0.3.2
     # via liana
 doubletdetection==4.3.0.post1
     # via snrnaseq-analysis
+executing==2.2.0
+    # via stack-data
 filelock==3.18.0
     # via torch
     # via virtualenv
@@ -91,18 +101,30 @@ identify==2.6.12
 idna==3.10
     # via requests
 igraph==0.11.8
+    # via decoupler
     # via leidenalg
 interface-meta==1.3.0
     # via formulaic
+ipython==9.3.0
+    # via ipywidgets
+ipython-pygments-lexers==1.1.1
+    # via ipython
+ipywidgets==8.1.7
+    # via decoupler
+jedi==0.19.2
+    # via ipython
 jinja2==3.1.6
     # via cookiecutter
     # via rpy2-robjects
     # via sc-toolbox
     # via torch
 joblib==1.5.0
+    # via dcor
     # via pynndescent
     # via scanpy
     # via scikit-learn
+jupyterlab-widgets==3.0.15
+    # via ipywidgets
 kiwisolver==1.4.8
     # via matplotlib
 legacy-api-wrap==1.4.1
@@ -134,6 +156,8 @@ matplotlib==3.10.3
     # via scanpy
     # via scvi
     # via seaborn
+matplotlib-inline==0.1.7
+    # via ipython
 mdurl==0.1.2
     # via markdown-it-py
 mizani==0.13.5
@@ -152,6 +176,7 @@ networkx==3.5
 nodeenv==1.9.1
     # via pre-commit
 numba==0.61.2
+    # via dcor
     # via decoupler
     # via glasbey
     # via liana
@@ -164,6 +189,7 @@ numpy==2.2.4
     # via anndata
     # via colorspacious
     # via contourpy
+    # via dcor
     # via doubletdetection
     # via formulaic
     # via glasbey
@@ -188,6 +214,7 @@ numpy==2.2.4
     # via seaborn
     # via statsmodels
     # via umap-learn
+    # via xgboost
 nvidia-cublas-cu12==12.6.4.1
     # via nvidia-cudnn-cu12
     # via nvidia-cusolver-cu12
@@ -215,6 +242,7 @@ nvidia-cusparselt-cu12==0.6.3
     # via torch
 nvidia-nccl-cu12==2.26.2
     # via torch
+    # via xgboost
 nvidia-nvjitlink-cu12==12.6.85
     # via nvidia-cufft-cu12
     # via nvidia-cusolver-cu12
@@ -242,9 +270,13 @@ pandas==2.3.0
     # via scvi
     # via seaborn
     # via statsmodels
+parso==0.8.4
+    # via jedi
 patsy==1.0.1
     # via scanpy
     # via statsmodels
+pexpect==4.9.0
+    # via ipython
 phenograph==1.5.7
     # via doubletdetection
 pillow==11.2.1
@@ -257,9 +289,14 @@ plotnine==0.14.5
 pre-commit==4.2.0
     # via liana
 prompt-toolkit==3.0.51
+    # via ipython
     # via questionary
 psutil==7.0.0
     # via phenograph
+ptyprocess==0.7.0
+    # via pexpect
+pure-eval==0.2.3
+    # via stack-data
 pyarrow==20.0.0
     # via pandas
 pycparser==2.22
@@ -267,6 +304,8 @@ pycparser==2.22
 pydeseq2==0.5.1
     # via snrnaseq-analysis
 pygments==2.19.1
+    # via ipython
+    # via ipython-pygments-lexers
     # via rich
 pymongo==4.13.0
     # via hyperopt
@@ -333,6 +372,7 @@ scikit-misc==0.5.1
 scipy==1.15.3
     # via adjusttext
     # via anndata
+    # via dcor
     # via doubletdetection
     # via formulaic
     # via hyperopt
@@ -347,6 +387,7 @@ scipy==1.15.3
     # via scikit-learn
     # via statsmodels
     # via umap-learn
+    # via xgboost
 scvi==0.6.8
     # via snrnaseq-analysis
 seaborn==0.13.2
@@ -367,6 +408,8 @@ six==1.17.0
     # via docrep
     # via hyperopt
     # via python-dateutil
+stack-data==0.6.3
+    # via ipython
 statsmodels==0.14.4
     # via plotnine
     # via scanpy
@@ -390,6 +433,11 @@ tqdm==4.67.1
     # via scanpy
     # via scvi
     # via umap-learn
+traitlets==5.14.3
+    # via comm
+    # via ipython
+    # via ipywidgets
+    # via matplotlib-inline
 triton==3.3.1
     # via torch
 types-python-dateutil==2.9.0.20250516
@@ -412,7 +460,11 @@ virtualenv==20.31.2
     # via pre-commit
 wcwidth==0.2.13
     # via prompt-toolkit
+widgetsnbextension==4.0.14
+    # via ipywidgets
 wrapt==1.17.2
     # via formulaic
+xgboost==3.0.2
+    # via decoupler
 xlrd==2.0.1
     # via scvi

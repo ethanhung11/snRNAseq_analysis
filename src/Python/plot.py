@@ -17,7 +17,7 @@ def order_obs(adata:AnnData, col:str, order:Iterable[str]):
     adata.obs[col] = pd.Categorical(adata.obs[col], categories=order, ordered=True)
     return
 
-def color_gen(groups:pd.Series | list | np.array, index=None):
+def color_gen(groups:pd.Series | Iterable | np.array, index=None):
     cs = glasbey.create_palette(palette_size=len(groups.unique()))
     if index is not None:
         return pd.Series(cs,index=index)
@@ -111,7 +111,7 @@ def cluster_c2c(adata:AnnData, key:str, pval:float=0.05, top_n:int=20,
     """Lightweight cell-cell communication dotplot with controlled dot sizes."""
     
     df = adata.uns[key]
-    df = df[df['specificity_rank'] < pval]
+    df = df[df['magnitude_rank'] < pval]
     
     if sources: df = df[df['source'].isin(sources)]
     if targets: df = df[df['target'].isin(targets)]
@@ -127,14 +127,14 @@ def cluster_c2c(adata:AnnData, key:str, pval:float=0.05, top_n:int=20,
     mag_vals = -np.log10(np.maximum(df['magnitude_rank'], 1e-10))
     size_bins = np.array([10, 50, 100, 150, 200])
     # Use 1 as minimum, then map higher values to larger sizes
-    size_norm = plt.Normalize(vmin=1, vmax=mag_vals.max())
+    plt.Normalize(vmin=1, vmax=mag_vals.max())
     df['dot_size'] = size_bins[np.searchsorted(np.percentile(mag_vals, [20, 40, 60, 80]), np.maximum(mag_vals, 1))]
     
     src_list = sorted(df['source'].unique())
     tgt_list = sorted(df['target'].unique())
     lr_list = df['lr'].drop_duplicates().tolist()
     
-    fig, axes = plt.subplots(1, len(src_list), figsize=figsize, sharey=True)
+    fig, axes = plt.subplots(1, len(src_list), figsize=figsize, sharey=True, layout="constrained")
     if len(src_list) == 1: axes = [axes]
     
     # Pre-compute color normalization
@@ -161,12 +161,11 @@ def cluster_c2c(adata:AnnData, key:str, pval:float=0.05, top_n:int=20,
     fig.suptitle('Source')
     fig.text(0.5, 0.02, 'Target', ha='center')
     
-    plt.tight_layout()
     fig.subplots_adjust(right=0.75)
     
     # Colorbar
     sm = plt.cm.ScalarMappable(cmap='Greens', norm=norm)
-    plt.colorbar(sm, ax=axes, label='-log10(specificity p-val)')
+    plt.colorbar(sm, ax=axes, label='Specificity (-log10 p-val)')
     
     # Create proper size legend using evenly spaced integer values
     if len(mag_vals) > 0:  # Only create legend if we have data
@@ -194,7 +193,7 @@ def cluster_c2c(adata:AnnData, key:str, pval:float=0.05, top_n:int=20,
         
         # Add legend to the figure
         fig.legend(handles=legend_elements, title='Magnitude\n(-log10 p-val)', 
-                  loc='center right', bbox_to_anchor=(0.83, 0.5), frameon=True, 
+                  loc='upper left', frameon=True, bbox_to_anchor=(1,0.95), 
                   fancybox=True, shadow=True)
     
     return
