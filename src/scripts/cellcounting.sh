@@ -11,7 +11,7 @@ cd "$parent_path"/../..
 # ================== PROCESS ARGS ==================
 
 # arg defaults
-transcriptome="./data/refdata-gex-GRCm39-2024-A"
+transcriptome="./references/refdata-gex-GRCm39-2024-A"
 cores=10
 memusage=5d0
 
@@ -87,21 +87,16 @@ for experiment in $(echo $input_files | awk -F, '{for (i=1; i<=NF; i++) print $i
         exit 1
     fi
  
-    samples=($(find ./data/raw/"$experiment"/ -type f -exec basename {} \; | cut -d '_' -f 1 | sort -u))
-    echo "Samples found in $experiment: ${samples[*]}"
-
-    for sample in ${samples[*]}; do
-        outputdir="./data/cellranger/$experiment/$sample"
-        mkdir -p "$outputdir"
-        cellranger count --id "$experiment" \
-                --create-bam false \
-                --output-dir "$outputdir" \
-                --transcriptome $transcriptome \
-                --fastqs "$inputdir" \
-                --sample "$sample" \
-                --localcores $cores \
-                --localmem $memusage
-    done
+    outputdir="./data/cellranger/$experiment"
+    mkdir -p "$outputdir"
+    cellranger count --id "$experiment" \
+            --create-bam false \
+            --output-dir "$outputdir" \
+            --transcriptome $transcriptome \
+            --fastqs "$inputdir" \
+            # --sample "$sample" \
+            --localcores $cores \
+            --localmem $memusage
 done
 
 echo "COMPLETE!"

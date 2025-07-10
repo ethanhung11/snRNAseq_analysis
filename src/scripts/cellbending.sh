@@ -93,13 +93,13 @@ for experimentdir in "$input_dir"/*; do
 
     for sampledir in "$experimentdir"/*; do
         
-        if [ -f "$sampledir/outs/filtered_feature_bc_matrix.h5" ]; then
-            sampleFile="$sampledir/outs/filtered_feature_bc_matrix.h5"
-        elif [ -d "$sampledir/outs/filtered_feature_bc_matrix" ]; then
-            sampleFile="$sampledir/outs/filtered_feature_bc_matrix"
+        if [ -f "$sampledir/outs/raw_feature_bc_matrix.h5" ]; then
+            sampleFile="$sampledir/outs/raw_feature_bc_matrix.h5"
+        elif [ -d "$sampledir/outs/raw_feature_bc_matrix" ]; then
+            sampleFile="$sampledir/outs/raw_feature_bc_matrix"
         else
             echo "Sample file not found within directory!"
-            echo "'filtered_feature_bc_matrix' or 'filtered_feature_bc_matrix.h5' must exist at 'dir/exp/samp/outs/'!"
+            echo "'raw_feature_bc_matrix' or 'raw_feature_bc_matrix.h5' must exist at 'dir/exp/samp/outs/'!"
             exit 1
         fi
         
