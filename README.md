@@ -111,7 +111,7 @@ remotes::install_github('chris-mcginnis-ucsf/DoubletFinder')
 * Authors use CellBender to call cells, but CellRanger has this functionality. See here for a [discussion of differences](https://bioinformatics.stackexchange.com/questions/20497/how-do-cellranger-and-cellbender-call-cells-what-is-the-difference-between-them).
 To run `cellcounting.sh`, see the example below:
 ```
-./src/scripts/cellcounting.sh -i GSM7747185,GSM7747186,GSM7747187,GSM7747188 -o cellcounting.out
+./src/scripts/cellcounting.sh -i GSM7747185-LFD_eWAT,GSM7747186-LFD_iWAT,GSM7747187-HFD_eWAT,GSM7747188-HFD_iWAT -o cellcounting.out
 ```
 
 ### Step 2. Call Cells (CellBender)
@@ -124,8 +124,8 @@ To run `cellbending.sh`, see the example below:
 ./src/scripts/cellbending.sh -i ./data/cellranger/paper_processed -o cellbending.out
 ```
 
-### Step 3. Data Pre-Processing (Seurat).
-See the .Rmd file for details. Broadly, the steps are:
+### Step 3. Data Pre-Processing
+See the .Rmd/.ipynb file for details. Broadly, the steps are:
 1. Process each dataset:
     1. Pull the CellBender data into Seurat.
     2. Filter samples based on UMIs (counts), genes (features), mitochrondial gene ratio, and UMIs/gene.
@@ -136,37 +136,70 @@ See the .Rmd file for details. Broadly, the steps are:
 
 
 ### Step 4a. Cluster Identification (Seurat)
-* Annotate clusters by marker genes using Seurat (see [FindMarkers](https://satijalab.org/seurat/articles/pbmc3k_tutorial.html#finding-differentially-expressed-features-cluster-biomarkers)) or in this case, markers are provided in the paper.
+* Using marker genes (e.g. markers are provided in the paper or from other databases), annotate clutters. May also use a cell atlas as reference.
 * For improved granularity, select a `subset` of cells within a clusters, then cluster again.
-> [!IMPORTANT]
-> Haven't looked into this yet!
-> * Annotate using [clusterProfiler](https://bioconductor.org/packages/release/bioc/html/clusterProfiler.html) if desired (per the example paper).
 
 
+### Step 4b. Differentially Expressed Genes (DEGs) & GSEA/Pathway Analysis
+* Pseudobulking
+  * more robust, but requires sufficient biological replicates
+  * compare within cell types only
+  * Options:
+    * [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html)/[DEseq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html) for R
+    * [decoupler](https://decoupler.readthedocs.io/en/latest/) + [PyDESeq2](https://pydeseq2.readthedocs.io/en/stable/index.html) for Python (see the [decoupler tutorial](https://decoupler.readthedocs.io/en/latest/notebooks/scell/rna_psbk.html))
+  * Identify DEGs based on 0.05 FDR and absolute 2 FC.
+* Single-cell methods
+  * treats each cell as independent, though not actually
+  * Options:
+    * Seurat's [`FindMarker`](https://satijalab.org/seurat/reference/findallmarkers), typically with "wilcox" or "t", check the V3 tutorial
+    * [Mast](https://rglab.github.io/MAST/), see [tutorial](https://rglab.github.io/MAST/articles/MAITAnalysis.html)
+    * Scanpy's [`tl.rank_genes_groups`](https://scanpy.readthedocs.io/en/stable/generated/scanpy.tl.rank_genes_groups.html), see [this online example](https://nbisweden.github.io/workshop-scRNAseq/labs/scanpy/scanpy_05_dge.html#meta-dge_cond)
 
-### Step 4b. Differentially Expressed Genes & Pathway Analysis (Seurat, Morpheus, & Metascape)
-* Group counts by sample and condition using [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
-
-> [!NOTE]
-> <a name="anchor"></a> <span style="color: blue;">I'm here!</span>
-
-* Identify DEGs based on 0.05FDR and absolute 2FC.
+The paper uses these steps, but I do my own thing kinda...
 * Cluster genes within each condition based with K-means using [Morpheus](https://software.broadinstitute.org/morpheus/), per the example paper.
 * Pathway analysis for each gene cluster using [Metascape](https://metascape.org/gp/index.html#/main/step1), per the example paper.
 
 ### Step 4c. Cell-Cell Interactions (NicheNet & CellChat)
-> [!IMPORTANT]
-> Haven't looked into this yet!
+
+
+
+> [!NOTE]
+> <a name="anchor"></a> <span style="color: blue;">I'm here!</span>
 
 # Bibliography & Readings
 I will create a .bib at some point, but until then here are some useful reads:
-* [BioConductor Intro to SComics (R, but not Seurat)](https://bioconductor.org/books/3.13/OSCA/)
-* [SeuratV3 tutorial (R)](https://satijalab.org/seurat/articles/pbmc3k_tutorial) (don't use the DGEs here for anything other than annotation)
+## Overviews / Tutorials
 * [SCVerse Best Practices (Python)](https://www.sc-best-practices.org/preamble.html)
-* [CellRanger (Lun et al. 2019)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1662-y)
+* [BioConductor Intro to SComics (R, but not Seurat-specific)](https://bioconductor.org/books/3.13/OSCA/)
+* [SeuratV3 tutorial (R)](https://satijalab.org/seurat/articles/pbmc3k_tutorial) & [matching paper](https://www.sciencedirect.com/science/article/pii/S0092867419305598?via%3Dihub)
+
+## Cell Calling
+* [CellRanger (Lun et al. 2019)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1662-y))
+  
+## Preprocessing
 * [CellBender (Fleming et al. 2023)](https://www.nature.com/articles/s41592-023-01943-7)
-* [DoubletFinder (McGinnes et al. 2019)](https://www.sciencedirect.com/science/article/pii/S2405471219300730?via%3Dihub)
-* [SCTransform in Seurat (Hafemeister & Satija 2019)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1874-1)
+* [Normalization review, well-known (Ahlmann-Eltze & Huber 2017)](https://www.nature.com/articles/s41592-023-01814-1)
+* [Normalization review, newer (Lytal et al. 2020)](https://www.frontiersin.org/journals/genetics/articles/10.3389/fgene.2020.00041/full)
+* [Doublet detection review (Xi & Li 2021)](https://www.sciencedirect.com/science/article/pii/S2666166721004068)
+* [DoubletDetection (Gayoso et al. 2020)](https://zenodo.org/records/14827937) + [documentation](https://doubletdetection.readthedocs.io/en/stable/)
+* [DoubletFinder (McGinnes et al. 2019)](https://www.sciencedirect.com/science/article/pii/S2405471219300730?via%3Dihub) + [GitHub](https://github.com/chris-mcginnis-ucsf/DoubletFinder)
+* [scDblFinder (Germain et al. 2022)](https://f1000research.com/articles/10-979/v2)
+* [Integration review (Luecken et al. 2021)](https://www.nature.com/articles/s41592-021-01336-8)
+* [Integration metric (Lyu et al. 2024)](https://academic.oup.com/bioinformatics/article/40/9/btae537/7748406)
+* [Harmony integration (Korsunsky et al. 2019)](https://www.nature.com/articles/s41592-019-0619-0)
+* [SCTransform (regularized NB GLM) in Seurat (Hafemeister & Satija 2019)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1874-1)
+* [SCVI integration (Xu et al. 2021)](https://www.embopress.org/doi/full/10.15252/msb.20209620)
+
+## DEGs
+* 
+
+## GSEA
+* 
+
+## C2C
+* 
+
+Other useful papers from the paper I won't be using:
 * [clusterProfiler (Wu et al. 2021)](https://www.sciencedirect.com/science/article/pii/S2666675821000667?via%3Dihub)
 * [MetaScape (Zhou et al. 2019)](https://www.nature.com/articles/s41467-019-09234-6))
 
