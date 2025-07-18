@@ -51,6 +51,8 @@ beautifulsoup4==4.13.4
     # via nbconvert
 binaryornot==0.4.4
     # via cookiecutter
+biopython==1.85
+    # via pycirclize
 black==25.1.0
 bleach==6.2.0
     # via nbconvert
@@ -123,6 +125,8 @@ future==1.0.0
     # via hyperopt
 glasbey==0.3.0
     # via snrnaseq-analysis
+gprofiler-official==1.0.0
+    # via snrnaseq-analysis
 h11==0.16.0
     # via httpcore
 h5py==3.14.0
@@ -158,12 +162,14 @@ ipykernel==6.29.5
 ipython==9.3.0
     # via ipykernel
     # via ipywidgets
+    # via itables
 ipython-pygments-lexers==1.1.1
     # via ipython
 ipywidgets==8.1.7
     # via decoupler
 isoduration==20.11.0
     # via jsonschema
+itables==2.4.4
 jedi==0.19.2
     # via ipython
 jinja2==3.1.6
@@ -255,6 +261,7 @@ matplotlib==3.10.3
     # via legendkit
     # via marsilea
     # via plotnine
+    # via pycirclize
     # via pydeseq2
     # via sc-toolbox
     # via scanpy
@@ -311,6 +318,7 @@ numba==0.61.2
 numpy==2.2.4
     # via adjusttext
     # via anndata
+    # via biopython
     # via colorspacious
     # via contourpy
     # via dcor
@@ -321,6 +329,7 @@ numpy==2.2.4
     # via harmonypy
     # via hyperopt
     # via imageio
+    # via itables
     # via marsilea
     # via matplotlib
     # via mizani
@@ -330,6 +339,7 @@ numpy==2.2.4
     # via patsy
     # via phenograph
     # via plotnine
+    # via pycirclize
     # via pydeseq2
     # via pyscipopt
     # via scanpy
@@ -401,9 +411,11 @@ pandas==2.3.0
     # via formulaic
     # via formulaic-contrasts
     # via harmonypy
+    # via itables
     # via marsilea
     # via mizani
     # via plotnine
+    # via pycirclize
     # via pydeseq2
     # via sc-toolbox
     # via scanpy
@@ -451,6 +463,8 @@ pure-eval==0.2.3
     # via stack-data
 pyarrow==20.0.0
     # via pandas
+pycirclize==1.9.1
+    # via snrnaseq-analysis
 pycparser==2.22
     # via cffi
 pydeseq2==0.5.1
@@ -502,6 +516,7 @@ referencing==0.36.2
 requests==2.32.4
     # via cookiecutter
     # via decoupler
+    # via gprofiler-official
     # via jupyterlab-server
 rfc3339-validator==0.1.4
     # via jsonschema
