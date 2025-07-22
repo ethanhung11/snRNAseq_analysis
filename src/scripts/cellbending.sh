@@ -118,4 +118,3 @@ for experimentdir in "$input_dir"/*; do
     done
 done
 echo "COMPLETE!"
-echo
