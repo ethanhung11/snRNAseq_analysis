@@ -1,12 +1,16 @@
 from .plot import (
+    clear_uns,
     empty_axs,
     order_obs,
     color_gen,
     check_integration,
-    cluster_violinplot,
-    cluster_stackedbarplot,
-    cluster_c2c,
+    checkDoublets,
+    plot_violinplot,
+    plot_cluster_violinplot,
+    plot_cluster_stackedbarplot,
+    plot_c2c,
     plot_gsea,
+    plot_go_enrichment,
 )
 from .preprocess import (
     Filter_QC,
@@ -16,5 +20,7 @@ from .preprocess import (
     Integrate,
     Visualize,
 )
-from .analysis import cell2cell_interactions, GSEA_dcULM
-from .get_data import get_data
+from .analysis import cell2cell_interactions, GSEA_decoupler, GO_Enrich
+from .utils import get_data,create_cloupe
+
+default_cmap = "Reds"

@@ -21,7 +21,7 @@ def Filter_QC(
     ribo_perc: float = 5,
     verbose: bool = False,
 ):
-    
+
     start = adata.shape[0]
     sc.pp.filter_cells(adata, min_genes=GenePerCell)
     sc.pp.filter_cells(adata, min_counts=CountPerCell)
@@ -45,8 +45,12 @@ def Filter_QC(
     adata.obs = adata.obs[[x for x in adata.obs.columns if x not in remove]]
 
     if verbose is True:
-        print(f"Cells with >{mt_perc}% mt genes: {np.sum(adata.obs["pct_counts_mt"] >= mt_perc)}")
-        print(f"Cells with >{ribo_perc}% ribo genes: {np.sum(adata.obs["pct_counts_ribo"] >= ribo_perc)}")
+        print(
+            f"Cells with >{mt_perc}% mt genes: {np.sum(adata.obs["pct_counts_mt"] >= mt_perc)}"
+        )
+        print(
+            f"Cells with >{ribo_perc}% ribo genes: {np.sum(adata.obs["pct_counts_ribo"] >= ribo_perc)}"
+        )
 
     adata = adata[adata.obs["pct_counts_mt"] <= mt_perc, :]
     adata = adata[adata.obs["pct_counts_ribo"] <= ribo_perc, :]
@@ -393,6 +397,7 @@ def Integrate(
 
     adata.uns["methods"]["integration"] = kind
     return adata
+
 
 def Visualize(adata, key=""):
     # UMAP

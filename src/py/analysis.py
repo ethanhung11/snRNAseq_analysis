@@ -2,6 +2,7 @@ from typing import Iterable
 from anndata import AnnData
 
 import os
+import scanpy as sc
 import liana as li
 import decoupler as dc
 import pandas as pd
@@ -111,9 +112,42 @@ def cell2cell_interactions(
     return adata
 
 
-def GSEA_dcULM(
+def GO_Enrich(
+    adata,
+    groupby,
+    key,
+    sources=["GO:MF", "GO:CC", "GO:BP", "KEGG", "REAC"],
+    pval_cutoff=1e-4,
+    log2fc_min=2,
+):
+    # see here for other gprofilier args: https://biit.cs.ut.ee/gprofiler/page/apis
+
+    GO_enrichments = {}
+    for src in sources:
+        GO_enrichments[src] = {}
+
+    for category in adata.obs[groupby].unique():
+        df = sc.get.rank_genes_groups_df(
+            adata,
+            group=category,
+            key=key,
+            pval_cutoff=pval_cutoff,
+            log2fc_min=log2fc_min,
+        )
+        for src in sources:
+            GO_enrichments[src][category] = sc.queries.enrich(
+                df.names.to_list(),
+                org="mmusculus",
+                gprofiler_kwargs={"sources": [src], "all_results": True},
+            )
+
+    return GO_enrichments
+
+
+def GSEA_decoupler(
     adata: AnnData,
     name: str,
+    type: str = "ULM",
     geneset_dir: str = None,
     geneset=None,
 ):
@@ -121,9 +155,21 @@ def GSEA_dcULM(
         assert geneset_dir is not None
         geneset = dc.pp.read_gmt(geneset_dir)
 
-    dc.mt.ulm(data=adata, net=geneset, layer="normalized", verbose=True)
-    adata.obsm[f"{name}_score_ulm"] = adata.obsm["score_ulm"]
-    adata.obsm[f"{name}_padj_ulm"] = adata.obsm["padj_ulm"]
-    del adata.obsm["score_ulm"], adata.obsm["padj_ulm"]
+    if type == "ULM":
+        dc.mt.ulm(data=adata, net=geneset, layer="normalized", verbose=True)
+        adata.obsm[f"{name}_score_ulm"] = adata.obsm["score_ulm"]
+        adata.obsm[f"{name}_padj_ulm"] = adata.obsm["padj_ulm"]
+        del adata.obsm["score_ulm"], adata.obsm["padj_ulm"]
+
+    elif type == "GSEA":
+        dc.mt.gsea(data=adata, net=geneset, layer="normalized", verbose=True)
+        adata.obsm[f"{name}_score_gsea"] = adata.obsm["score_gsea"]
+        adata.obsm[f"{name}_padj_gsea"] = adata.obsm["padj_gsea"]
+        del adata.obsm["score_gsea"], adata.obsm["padj_gsea"]
+
+    elif type == "AUCell":
+        dc.mt.aucell(data=adata, net=geneset, layer="normalized", verbose=True)
+        adata.obsm[f"{name}_score_aucell"] = adata.obsm["score_aucell"]
+        del adata.obsm["score_aucell"]
 
     return adata
