@@ -32,6 +32,9 @@ arrow==1.3.0
     # via cookiecutter
 asttokens==3.0.0
     # via stack-data
+attrs==25.3.0
+    # via jsonschema
+    # via referencing
 binaryornot==0.4.4
     # via cookiecutter
 biopython==1.85
@@ -120,6 +123,8 @@ igraph==0.11.8
     # via scanpy
 imageio==2.37.0
     # via scikit-image
+iniconfig==2.1.0
+    # via pytest
 interface-meta==1.3.0
     # via formulaic
 ipykernel==6.29.5
@@ -131,6 +136,8 @@ ipython-pygments-lexers==1.1.1
     # via ipython
 ipywidgets==8.1.7
     # via decoupler
+isal==1.7.2
+    # via xopen
 itables==2.4.4
 jedi==0.19.2
     # via ipython
@@ -144,6 +151,10 @@ joblib==1.5.0
     # via pynndescent
     # via scanpy
     # via scikit-learn
+jsonschema==4.25.0
+    # via pytest-workflow
+jsonschema-specifications==2025.4.1
+    # via jsonschema
 jupyter-client==8.6.3
     # via ipykernel
 jupyter-core==5.8.1
@@ -303,6 +314,7 @@ packaging==25.0
     # via ipykernel
     # via lazy-loader
     # via matplotlib
+    # via pytest
     # via scanpy
     # via scikit-image
     # via statsmodels
@@ -346,6 +358,8 @@ platformdirs==4.3.8
     # via virtualenv
 plotnine==0.14.5
     # via liana
+pluggy==1.6.0
+    # via pytest
 pre-commit==4.2.0
     # via liana
 prompt-toolkit==3.0.51
@@ -369,6 +383,7 @@ pydeseq2==0.5.1
 pygments==2.19.1
     # via ipython
     # via ipython-pygments-lexers
+    # via pytest
     # via rich
 pymongo==4.13.0
     # via hyperopt
@@ -381,6 +396,9 @@ pypi-latest==0.1.2
     # via sc-toolbox
 pyscipopt==5.5.0
     # via liana
+pytest==8.4.1
+    # via pytest-workflow
+pytest-workflow==2.1.0
 python-dateutil==2.9.0.post0
     # via arrow
     # via jupyter-client
@@ -394,6 +412,7 @@ pyyaml==6.0.2
     # via cookiecutter
     # via pre-commit
     # via pypi-latest
+    # via pytest-workflow
     # via sc-toolbox
 pyzmq==26.4.0
     # via ipykernel
@@ -401,6 +420,9 @@ pyzmq==26.4.0
 questionary==2.1.0
     # via pypi-latest
     # via sc-toolbox
+referencing==0.36.2
+    # via jsonschema
+    # via jsonschema-specifications
 requests==2.32.4
     # via cookiecutter
     # via decoupler
@@ -409,6 +431,9 @@ rich==14.0.0
     # via cookiecutter
     # via pypi-latest
     # via sc-toolbox
+rpds-py==0.26.0
+    # via jsonschema
+    # via referencing
 rpy2==3.6.1
     # via anndata2ri
     # via snrnaseq-analysis
@@ -525,6 +550,7 @@ types-python-dateutil==2.9.0.20250516
     # via arrow
 typing-extensions==4.14.0
     # via formulaic
+    # via referencing
     # via sc-toolbox
     # via scanpy
     # via torch
@@ -549,3 +575,9 @@ xgboost==3.0.2
     # via decoupler
 xlrd==2.0.1
     # via scvi
+xopen==2.0.2
+    # via pytest-workflow
+zlib-ng==0.5.1
+    # via xopen
+zstandard==0.23.0
+    # via pytest-workflow

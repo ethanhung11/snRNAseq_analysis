@@ -38,6 +38,7 @@ dev-dependencies = [
     "black>=25.1.0",
     "itables>=2.4.4",
     "ipykernel>=6.29.5",
+    "pytest-workflow>=2.1.0",
 ]
 
 [tool.hatch.metadata]
