@@ -74,6 +74,8 @@ docrep==0.3.2
     # via liana
 doubletdetection==4.3.0.post1
     # via snrnaseq-analysis
+et-xmlfile==2.0.0
+    # via openpyxl
 executing==2.2.0
     # via stack-data
 filelock==3.18.0
@@ -273,6 +275,8 @@ nvidia-nvjitlink-cu12==12.6.85
     # via torch
 nvidia-nvtx-cu12==12.6.77
     # via torch
+openpyxl==3.1.5
+    # via snrnaseq-analysis
 packaging==25.0
     # via anndata
     # via lazy-loader

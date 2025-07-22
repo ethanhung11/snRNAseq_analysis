@@ -23,6 +23,7 @@ dependencies = [
     "harmonypy>=0.0.10",
     "gprofiler-official>=1.0.0",
     "pycirclize>=1.9.1",
+    "openpyxl>=3.1.5",
 ]
 readme = "README.md"
 requires-python = ">= 3.12"
@@ -35,8 +36,8 @@ build-backend = "hatchling.build"
 managed = true
 dev-dependencies = [
     "black>=25.1.0",
-    "notebook>=7.4.3",
     "itables>=2.4.4",
+    "ipykernel>=6.29.5",
 ]
 
 [tool.hatch.metadata]
