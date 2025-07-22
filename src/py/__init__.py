@@ -21,6 +21,6 @@ from .preprocess import (
     Visualize,
 )
 from .analysis import cell2cell_interactions, GSEA_decoupler, GO_Enrich
-from .utils import get_data,create_cloupe
+from .utils import get_data, create_cloupe
 
-default_cmap = "Reds"
+DEFAULT_CMAP = "Reds"

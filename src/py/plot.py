@@ -139,7 +139,7 @@ def checkDoublets(
             color=f"predicted_doublet-{method}",
             ax=axs[n // 2, n % 2],
             show=False,
-            alpha=0.7
+            alpha=0.7,
         )
 
     ax = sf[2].subplots(1, 1)
@@ -185,20 +185,33 @@ def plot_violinplot(
             axs[n].set_xlabel("")
             axs[n].set_xticklabels([""] * len(axs[n].get_xticklabels()))
         axs[n].set_ylabel(axs[n].get_ylabel(), size=12)
-    
+
     if bracket_params is not None:
-        ratios = bracket_params["ratio"]/np.sum(bracket_params["ratio"])
-        ends = np.append(0,np.cumsum(ratios))
-        bar_label_locs = [ends[i] + ratios[i]/2 for i in range(len(ratios))]
-        bar_bracket_widths = ratios*f.get_size_inches()[0]*3.1
+        ratios = bracket_params["ratio"] / np.sum(bracket_params["ratio"])
+        ends = np.append(0, np.cumsum(ratios))
+        bar_label_locs = [ends[i] + ratios[i] / 2 for i in range(len(ratios))]
+        bar_bracket_widths = ratios * f.get_size_inches()[0] * 3.1
 
         axs = f.get_axes()
-        for n,label, in enumerate(bracket_params["labels"]):
-            axs[-1].annotate(label, xy=(bar_label_locs[n], -bracket_params["bracket_y"]), xytext=(bar_label_locs[n], -bracket_params["label_y"]), xycoords='axes fraction', 
-                        ha='center', va='bottom',
-                        bbox=dict(boxstyle='square', fc='none', color='none'),
-                        arrowprops=dict(arrowstyle=f'-[, widthB={bar_bracket_widths[n]}, lengthB=0.3', lw=1.0, color='k'))
-        axs[-1].set_xlabel(axs[-1].get_xlabel(), labelpad=bracket_params['padding'])
+        for (
+            n,
+            label,
+        ) in enumerate(bracket_params["labels"]):
+            axs[-1].annotate(
+                label,
+                xy=(bar_label_locs[n], -bracket_params["bracket_y"]),
+                xytext=(bar_label_locs[n], -bracket_params["label_y"]),
+                xycoords="axes fraction",
+                ha="center",
+                va="bottom",
+                bbox=dict(boxstyle="square", fc="none", color="none"),
+                arrowprops=dict(
+                    arrowstyle=f"-[, widthB={bar_bracket_widths[n]}, lengthB=0.3",
+                    lw=1.0,
+                    color="k",
+                ),
+            )
+        axs[-1].set_xlabel(axs[-1].get_xlabel(), labelpad=bracket_params["padding"])
 
     return
 
@@ -209,24 +222,26 @@ def plot_cluster_violinplot(
     clusters: str,
     markers: Iterable[str],
     f,
-    ):
+):
 
     clusts = adata.obs[clusters].cat.categories
-    cols = color_gen(adata.obs[group],adata.obs[group].cat.categories)
-    sf = f.subfigures(2,len(clusts), height_ratios=[4,1])
+    cols = color_gen(adata.obs[group], adata.obs[group].cat.categories)
+    sf = f.subfigures(2, len(clusts), height_ratios=[4, 1])
 
-    for n,cluster in enumerate(clusts):
+    for n, cluster in enumerate(clusts):
         cdata = adata[adata.obs[clusters] == cluster]
-        plot_violinplot(cdata, markers, group, sf[0,n], useStripPlot=False)
+        plot_violinplot(cdata, markers, group, sf[0, n], useStripPlot=False)
 
-        ax = sf[1,n].subplots(1,1)
+        ax = sf[1, n].subplots(1, 1)
         crosstab_counts = pd.crosstab(adata.obs[clusters], adata.obs[group])
-        crosstab_counts.loc[cluster][crosstab_counts.loc[cluster] > 0].plot(kind="bar", color=cols[crosstab_counts.loc[cluster] > 0], ax=ax)
-        ax.tick_params(axis='x', rotation=0)
+        crosstab_counts.loc[cluster][crosstab_counts.loc[cluster] > 0].plot(
+            kind="bar", color=cols[crosstab_counts.loc[cluster] > 0], ax=ax
+        )
+        ax.tick_params(axis="x", rotation=0)
         ax.bar_label(ax.containers[0])
 
-        sf[0,n].suptitle(f"Cluster {cluster}")
-    
+        sf[0, n].suptitle(f"Cluster {cluster}")
+
     return
 
 
@@ -249,7 +264,9 @@ def plot_cluster_stackedbarplot(
         # Counts
         crosstab_counts.plot(kind="bar", stacked=True, ax=ax, color=colors)
         ax.set_title(
-            f"{groupby} composition\n({clusters}, counts)", fontsize=14, fontweight="bold"
+            f"{groupby} composition\n({clusters}, counts)",
+            fontsize=14,
+            fontweight="bold",
         )
         ax.set_xlabel(groupby, fontsize=12)
         ax.set_ylabel("Cell Count", fontsize=12)
@@ -264,7 +281,9 @@ def plot_cluster_stackedbarplot(
 
         crosstab_pct.plot(kind="bar", stacked=True, ax=ax, color=colors)
         ax.set_title(
-            f"{groupby} composition\n({clusters}, percentage)", fontsize=14, fontweight="bold"
+            f"{groupby} composition\n({clusters}, percentage)",
+            fontsize=14,
+            fontweight="bold",
         )
         ax.set_xlabel(groupby, fontsize=12)
         ax.set_ylabel("Percentage (%)", fontsize=12)
@@ -409,7 +428,9 @@ def plot_c2c(
     return
 
 
-def plot_gsea(adata, name, key="score_ulm", group="cell_type", n_markers=5, flip=True, f=None):
+def plot_gsea(
+    adata, name, key="score_ulm", group="cell_type", n_markers=5, flip=True, f=None
+):
     ax = f.get_axes() if f is not None else None
 
     score = dc.pp.get_obsm(adata=adata, key=key)
@@ -437,24 +458,28 @@ def plot_gsea(adata, name, key="score_ulm", group="cell_type", n_markers=5, flip
         cmap="Reds",
         swap_axes=flip,
         title=name,
-        ax=ax
+        ax=ax,
     )
 
 
-def plot_go_enrichment(df_dict, pvalue_col, score_col, 
-                                names_to_plot=None,
-                                pvalue_threshold=None,
-                                score_threshold=None,
-                                rank_by=None,
-                                top_n=None,
-                                use_log_pvalue=False, 
-                                use_log_score=False,
-                                database=None,
-                                figsize=(8, 10),
-                                **kwargs):
+def plot_go_enrichment(
+    df_dict,
+    pvalue_col,
+    score_col,
+    names_to_plot=None,
+    pvalue_threshold=None,
+    score_threshold=None,
+    rank_by=None,
+    top_n=None,
+    use_log_pvalue=False,
+    use_log_score=False,
+    database=None,
+    figsize=(8, 10),
+    **kwargs,
+):
     """
     Create a vertical dot plot from multiple dataframes with discrete size intervals.
-    
+
     Parameters:
     -----------
     df_dict : dict
@@ -481,140 +506,170 @@ def plot_go_enrichment(df_dict, pvalue_col, score_col,
         Figure size
     **kwargs : dict
         Additional arguments passed to plt.scatter
-        
+
     Returns:
     --------
     fig, ax : matplotlib figure and axes objects
     """
-    
+
     # Set default scatter parameters
-    scatter_params = {'alpha': 0.7, 'cmap': 'viridis', 'edgecolors': 'black', 'linewidth': 0.5}
+    scatter_params = {
+        "alpha": 0.7,
+        "cmap": "viridis",
+        "edgecolors": "black",
+        "linewidth": 0.5,
+    }
     scatter_params.update(kwargs)
-    
+
     # Filter names based on criteria
     if names_to_plot is None:
         names_to_plot = {}
         for df_name, df in df_dict.items():
             df_filtered = df.copy()
-            
+
             if pvalue_threshold is not None:
                 df_filtered = df_filtered[df_filtered[pvalue_col] <= pvalue_threshold]
             if score_threshold is not None:
                 df_filtered = df_filtered[df_filtered[score_col] >= score_threshold]
-            
+
             if rank_by is not None and top_n is not None:
-                if rank_by == 'pvalue':
+                if rank_by == "pvalue":
                     df_filtered = df_filtered.nsmallest(top_n, pvalue_col)
-                elif rank_by == 'score':
+                elif rank_by == "score":
                     df_filtered = df_filtered.nlargest(top_n, score_col)
-            
-            names_to_plot[df_name] = df_filtered['name'].tolist()
-    
+
+            names_to_plot[df_name] = df_filtered["name"].tolist()
+
     # Get all unique names and sort by best p-value across all dataframes
     all_names = set()
     for df_name, df in df_dict.items():
         if df_name in names_to_plot:
             all_names.update(names_to_plot[df_name])
         else:
-            all_names.update(df['name'].values)
-    
+            all_names.update(df["name"].values)
+
     # Create a mapping of names to their best (lowest) p-value across all dataframes
     name_to_best_pvalue = {}
     for name in all_names:
-        best_pvalue = float('inf')
+        best_pvalue = float("inf")
         for df_name, df in df_dict.items():
-            if name in df['name'].values:
-                pvalue = df[df['name'] == name][pvalue_col].iloc[0]
+            if name in df["name"].values:
+                pvalue = df[df["name"] == name][pvalue_col].iloc[0]
                 if np.isfinite(pvalue) and pvalue > 0:
                     best_pvalue = min(best_pvalue, pvalue)
         name_to_best_pvalue[name] = best_pvalue
-    
+
     # Sort names by best p-value (lowest first)
     all_names = sorted(all_names, key=lambda x: name_to_best_pvalue[x])
     name_to_y = {name: i for i, name in enumerate(all_names)}
-    
+
     # Collect all valid data for normalization
     all_pvalues, all_scores = [], []
     for df_name, df in df_dict.items():
-        df_filtered = df[df['name'].isin(names_to_plot.get(df_name, df['name']))]
-        
+        df_filtered = df[df["name"].isin(names_to_plot.get(df_name, df["name"]))]
+
         pvalues = df_filtered[pvalue_col].values
         scores = df_filtered[score_col].values
-        
-        valid_mask = np.isfinite(pvalues) & np.isfinite(scores) & (pvalues > 0) & (scores > 0)
+
+        valid_mask = (
+            np.isfinite(pvalues) & np.isfinite(scores) & (pvalues > 0) & (scores > 0)
+        )
         all_pvalues.extend(pvalues[valid_mask])
         all_scores.extend(scores[valid_mask])
-    
+
     # Transform data and create normalizations
     pvalues_transformed = -np.log10(all_pvalues) if use_log_pvalue else all_pvalues
     scores_transformed = -np.log10(all_scores) if use_log_score else all_scores
-    
-    pvalue_norm = mpl.colors.Normalize(vmin=np.min(pvalues_transformed), vmax=np.max(pvalues_transformed))
+
+    pvalue_norm = mpl.colors.Normalize(
+        vmin=np.min(pvalues_transformed), vmax=np.max(pvalues_transformed)
+    )
     score_bins = np.percentile(scores_transformed, [0, 20, 40, 60, 80, 100])
     score_sizes = [40, 100, 160, 220, 280]
-    
+
     # Create plot
     fig, ax = plt.subplots(figsize=figsize, layout="constrained")
-    
+
     # Plot data for each dataframe (sort dataframes alphabetically)
     df_names_sorted = sorted(df_dict.keys())
     for col_idx, df_name in enumerate(df_names_sorted):
         df = df_dict[df_name]
-        df_filtered = df[df['name'].isin(names_to_plot.get(df_name, df['name']))]
-        
+        df_filtered = df[df["name"].isin(names_to_plot.get(df_name, df["name"]))]
+
         for _, row in df_filtered.iterrows():
-            name, pvalue, score = row['name'], row[pvalue_col], row[score_col]
-            
-            if not (np.isfinite(pvalue) and np.isfinite(score) and pvalue > 0 and score > 0):
+            name, pvalue, score = row["name"], row[pvalue_col], row[score_col]
+
+            if not (
+                np.isfinite(pvalue) and np.isfinite(score) and pvalue > 0 and score > 0
+            ):
                 continue
-            
+
             pvalue_plot = -np.log10(pvalue) if use_log_pvalue else pvalue
             score_plot = -np.log10(score) if use_log_score else score
-            
+
             # Get size based on percentile intervals
             size_idx = np.searchsorted(score_bins[1:], score_plot)
             size_to_use = score_sizes[min(size_idx, len(score_sizes) - 1)]
-            
-            ax.scatter(col_idx, name_to_y[name], c=pvalue_plot, s=size_to_use, 
-                      norm=pvalue_norm, **scatter_params)
-    
+
+            ax.scatter(
+                col_idx,
+                name_to_y[name],
+                c=pvalue_plot,
+                s=size_to_use,
+                norm=pvalue_norm,
+                **scatter_params,
+            )
+
     # Setup axes
     ax.set_xlim(-0.5, len(df_dict) - 0.5)
     ax.set_ylim(-0.5, len(all_names) - 0.5)
     ax.set_xticks(range(len(df_dict)))
-    ax.set_xticklabels(df_names_sorted, rotation=45, ha='right')
+    ax.set_xticklabels(df_names_sorted, rotation=45, ha="right")
     ax.set_yticks(range(len(all_names)))
     ax.set_yticklabels(all_names)
     ax.invert_yaxis()
     ax.grid(True, alpha=0.3)
-    ax.set_xlabel('Dataframe')
-    ax.set_ylabel(f'GO Enrichment Term ({database})')
-    
+    ax.set_xlabel("Dataframe")
+    ax.set_ylabel(f"GO Enrichment Term ({database})")
+
     # Add legends
     # Color legend
-    dummy_scatter = ax.scatter([], [], c=[], norm=pvalue_norm, cmap=scatter_params['cmap'])
+    dummy_scatter = ax.scatter(
+        [], [], c=[], norm=pvalue_norm, cmap=scatter_params["cmap"]
+    )
     cbar = plt.colorbar(dummy_scatter, ax=ax, shrink=0.8)
-    cbar.set_label(f'-log10({pvalue_col})' if use_log_pvalue else pvalue_col, rotation=270, labelpad=20)
-    
+    cbar.set_label(
+        f"-log10({pvalue_col})" if use_log_pvalue else pvalue_col,
+        rotation=270,
+        labelpad=20,
+    )
+
     # Size legend with actual score values
-    legend_elements = [plt.scatter([], [], s=s, c='gray', alpha=0.6, 
-                                 edgecolors='black', linewidth=0.5) for s in score_sizes]
-    
+    legend_elements = [
+        plt.scatter([], [], s=s, c="gray", alpha=0.6, edgecolors="black", linewidth=0.5)
+        for s in score_sizes
+    ]
+
     # Create labels with actual score ranges
     labels = []
     for i in range(len(score_bins) - 1):
         min_val = score_bins[i]
         max_val = score_bins[i + 1]
         if use_log_score:
-            min_val = 10**(-min_val) if min_val != 0 else 0
-            max_val = 10**(-max_val) if max_val != 0 else 0
-        labels.append(f'{min_val:.1f} - {max_val:.1f}')
-    
-    ax.legend(legend_elements, labels,
-             scatterpoints=1, loc='upper left', bbox_to_anchor=(1.3, 1),
-             title=f'{score_col} ranges')
-    
+            min_val = 10 ** (-min_val) if min_val != 0 else 0
+            max_val = 10 ** (-max_val) if max_val != 0 else 0
+        labels.append(f"{min_val:.1f} - {max_val:.1f}")
+
+    ax.legend(
+        legend_elements,
+        labels,
+        scatterpoints=1,
+        loc="upper left",
+        bbox_to_anchor=(1.3, 1),
+        title=f"{score_col} ranges",
+    )
+
     # Add title
     ax.set_title(f"GO Enrichment via {database}")
-    
+
     return fig
